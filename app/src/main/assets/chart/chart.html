@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <style>
+    html, body, #chart { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  </style>
+  <!-- TradingView Lightweight Charts 4.2.3, Apache-2.0. See LIGHTWEIGHT_CHARTS_LICENSE.txt. -->
+  <script src="lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+<div id="chart"></div>
+<script>
+  let chart = null;
+  let series = [];
+
+  function clear() {
+    series.forEach(function (s) { chart.removeSeries(s); });
+    series = [];
+  }
+
+  function ensureChart(theme) {
+    const options = {
+      autoSize: true,
+      layout: { background: { color: theme.background }, textColor: theme.text, fontSize: 11, attributionLogo: true },
+      grid: { vertLines: { color: theme.grid }, horzLines: { color: theme.grid } },
+      rightPriceScale: { borderVisible: false },
+      timeScale: { borderVisible: false, fixLeftEdge: true, fixRightEdge: true },
+      crosshair: { mode: 0 },
+      handleScale: { axisPressedMouseMove: false },
+    };
+    if (!chart) chart = LightweightCharts.createChart(document.getElementById('chart'), options);
+    else chart.applyOptions(options);
+  }
+
+  // payload: { theme, mode: 'candle'|'line', candles, volume, lines, markers, priceLines }
+  function render(payload) {
+    ensureChart(payload.theme);
+    clear();
+    let main;
+    if (payload.mode === 'line') {
+      main = chart.addAreaSeries({
+        lineColor: payload.theme.accent, topColor: payload.theme.accent + '55', bottomColor: payload.theme.accent + '05',
+        lineWidth: 2, priceLineVisible: false,
+      });
+      main.setData(payload.candles.map(function (c) { return { time: c.time, value: c.close }; }));
+    } else {
+      main = chart.addCandlestickSeries({
+        upColor: payload.theme.up, downColor: payload.theme.down, borderVisible: false,
+        wickUpColor: payload.theme.up, wickDownColor: payload.theme.down,
+      });
+      main.setData(payload.candles);
+    }
+    series.push(main);
+
+    if (payload.volume && payload.volume.length) {
+      const vol = chart.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false });
+      vol.priceScale().applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+      vol.setData(payload.volume);
+      series.push(vol);
+    }
+
+    (payload.lines || []).forEach(function (l) {
+      const s = chart.addLineSeries({ color: l.color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
+      s.setData(l.data);
+      series.push(s);
+    });
+
+    if (payload.markers && payload.markers.length) main.setMarkers(payload.markers);
+    (payload.priceLines || []).forEach(function (p) {
+      main.createPriceLine({ price: p.price, color: p.color, lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: p.title });
+    });
+    chart.timeScale().fitContent();
+  }
+</script>
+</body>
+</html>

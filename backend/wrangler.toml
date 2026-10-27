@@ -1,0 +1,26 @@
+name = "piso-tiyempo-api"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Create with: npx wrangler kv namespace create CACHE
+# then paste the returned id below.
+[[kv_namespaces]]
+binding = "CACHE"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Times are UTC. PSE closes at 3:00 PM PHT (07:00 UTC).
+# 09:00 UTC = 5:00 PM PHT: snapshot the day's prices and write the AI market brief.
+# 11:00 UTC = 7:00 PM PHT: retry in case EODHD had not published the day yet.
+[triggers]
+crons = ["0 9 * * 1-5", "0 11 * * 1-5"]
+
+[vars]
+# Set to "false" to switch every AI endpoint off without redeploying code.
+AI_ENABLED = "true"
+
+# Secrets (never commit these). Set each with: npx wrangler secret put <NAME>
+#   EODHD_API_KEY      - EODHD token. Leave unset to run on the free fallback sources only.
+#   ANTHROPIC_API_KEY  - Claude API key. Leave unset to make the app use its on-device rules engine.
+#   APP_KEY            - Shared key the Android app sends in X-App-Key.
+#   ADMIN_KEY          - Key for the admin upload endpoints.

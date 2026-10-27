@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Piso Tiyempo</string>
+    <string name="tagline">Buy right. Sell right. Tamang tiyempo.</string>
+    <string name="notification_channel_alerts">Price and pattern alerts</string>
+    <string name="notification_channel_sync">Daily market sync</string>
+</resources>
