@@ -22,6 +22,8 @@ data class Settings(
     val aiLanguage: String = "en",
     /** Send anonymous crash reports (only when the build includes Firebase Crashlytics). */
     val crashReports: Boolean = true,
+    /** Ask for fingerprint, face or PIN when opening the app. */
+    val appLock: Boolean = false,
     /** Trading capital used by the position sizer. */
     val capital: Double = 100_000.0,
     /** Percent of capital to risk per trade. */
@@ -41,6 +43,7 @@ class SettingsStore(private val context: Context) {
         val ai = booleanPreferencesKey("ai_enabled")
         val aiLanguage = stringPreferencesKey("ai_language")
         val crashReports = booleanPreferencesKey("crash_reports")
+        val appLock = booleanPreferencesKey("app_lock")
         val capital = doublePreferencesKey("capital")
         val risk = doublePreferencesKey("risk_pct")
         val paperCash = doublePreferencesKey("paper_starting_cash")
@@ -64,6 +67,7 @@ class SettingsStore(private val context: Context) {
             aiEnabled = this[Keys.ai] ?: true,
             aiLanguage = this[Keys.aiLanguage] ?: "en",
             crashReports = this[Keys.crashReports] ?: true,
+            appLock = this[Keys.appLock] ?: false,
             capital = this[Keys.capital] ?: 100_000.0,
             riskPct = this[Keys.risk] ?: 1.0,
             paperStartingCash = this[Keys.paperCash] ?: 100_000.0,
@@ -84,6 +88,8 @@ class SettingsStore(private val context: Context) {
     suspend fun setAiEnabled(enabled: Boolean) = context.dataStore.edit { it[Keys.ai] = enabled }
 
     suspend fun setAiLanguage(lang: String) = context.dataStore.edit { it[Keys.aiLanguage] = lang }
+
+    suspend fun setAppLock(enabled: Boolean) = context.dataStore.edit { it[Keys.appLock] = enabled }
 
     suspend fun setCrashReports(enabled: Boolean) = context.dataStore.edit { it[Keys.crashReports] = enabled }
 

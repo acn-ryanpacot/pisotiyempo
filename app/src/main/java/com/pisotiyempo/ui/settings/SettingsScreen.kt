@@ -48,6 +48,7 @@ import com.pisotiyempo.ui.common.MutedText
 import com.pisotiyempo.ui.common.SectionCard
 import com.pisotiyempo.ui.common.appContainer
 import com.pisotiyempo.ui.common.changeColor
+import com.pisotiyempo.ui.lock.AppLock
 import com.pisotiyempo.work.CrashReporting
 import com.pisotiyempo.work.SyncService
 import kotlinx.coroutines.launch
@@ -78,7 +79,10 @@ fun SettingsScreen(onBack: () -> Unit) {
             item { PremiumCard() }
             item { DataCard(s, context) }
             item { EodhdKeyCard() }
+            item { BackupCard() }
+            item { PracticeCashCard(s) }
             item { AiCard(s) }
+            item { AppLockCard(s) }
             item { CrashReportsCard(s) }
             item { RiskCard(s) }
             item { FeesCard(s) }
@@ -193,6 +197,20 @@ private fun EodhdKeyCard() {
 }
 
 @Composable
+private fun PracticeCashCard(s: Settings) {
+    val c = appContainer()
+    val scope = rememberCoroutineScope()
+    var amount by remember(s.paperStartingCash) { mutableStateOf(s.paperStartingCash.toLong().toString()) }
+    SectionCard("Practice account") {
+        OutlinedTextField(amount, { amount = it.filter(Char::isDigit) }, label = { Text("Starting cash (₱)") }, singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+        MutedText("Changing this updates the practice account's cash right away; your practice trades stay.")
+        val v = amount.toDoubleOrNull()
+        OutlinedButton(enabled = v != null && v >= 1_000, onClick = { scope.launch { c.settings.setPaperStartingCash(v!!) } }) { Text("Save") }
+    }
+}
+
+@Composable
 private fun StatusLine(label: String, value: String, ok: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
@@ -227,6 +245,21 @@ private fun AiCard(s: Settings) {
                 "Only the computed technical indicators are sent; your portfolio and trades never leave this phone. " +
                 "Off, or when AI is unavailable, the built-in rules engine writes the analysis instead.",
         )
+    }
+}
+
+@Composable
+private fun AppLockCard(s: Settings) {
+    val c = appContainer()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val unavailable = remember { AppLock.unavailableReason(context) }
+    SectionCard("App lock") {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Require fingerprint or PIN", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+            Switch(checked = s.appLock, enabled = unavailable == null || s.appLock, onCheckedChange = { on -> scope.launch { c.settings.setAppLock(on) } })
+        }
+        MutedText(unavailable ?: "Asks for your fingerprint, face or screen-lock PIN when you open the app, and again after a minute away. Your data is also stored encrypted on the phone.")
     }
 }
 

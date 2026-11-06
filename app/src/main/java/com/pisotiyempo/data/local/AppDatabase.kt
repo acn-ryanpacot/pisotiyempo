@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 @Database(
     entities = [
@@ -28,10 +29,20 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun journal(): JournalDao
 
     companion object {
-        fun create(context: Context): AppDatabase =
-            Room.databaseBuilder(context, AppDatabase::class.java, "piso-tiyempo.db")
+        fun create(context: Context): AppDatabase {
+            EncryptedDatabase.init()
+            val passphrase = EncryptedDatabase.passphrase(context)
+            if (!EncryptedDatabase.migrateLegacy(context, passphrase)) {
+                // Rare: encrypting the old file failed. Use it as-is for now rather than show an empty app.
+                return Room.databaseBuilder(context, AppDatabase::class.java, EncryptedDatabase.LEGACY_NAME)
+                    .addMigrations(MIGRATION_1_2)
+                    .build()
+            }
+            return Room.databaseBuilder(context, AppDatabase::class.java, EncryptedDatabase.NAME)
+                .openHelperFactory(SupportOpenHelperFactory(passphrase.toByteArray(Charsets.UTF_8)))
                 .addMigrations(MIGRATION_1_2)
                 .build()
+        }
 
         /**
          * v2: screener columns on analyses (a cache rebuilt every sync, so it's recreated), an account

@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,7 +18,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pisotiyempo.ui.lock.LockScreen
 import com.pisotiyempo.ui.nav.AppNav
 import com.pisotiyempo.ui.onboarding.DisclaimerScreen
 import com.pisotiyempo.ui.theme.PisoTheme
@@ -27,8 +28,12 @@ import com.pisotiyempo.work.Notifications
 import com.pisotiyempo.work.SyncService
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+/** A FragmentActivity because the biometric prompt (app lock) needs one. */
+class MainActivity : FragmentActivity() {
     private var pendingSymbol by mutableStateOf<String?>(null)
+    /** Unlocked once per visit; the app re-locks after [RELOCK_AFTER_MS] in the background. */
+    private var unlocked by mutableStateOf(false)
+    private var backgroundedAt = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +51,7 @@ class MainActivity : ComponentActivity() {
                     val s = settings
                     when {
                         s == null -> Unit // DataStore is loading; this takes a few milliseconds.
+                        s.appLock && !unlocked -> LockScreen(onUnlocked = { unlocked = true })
                         !s.disclaimerAccepted -> DisclaimerScreen(onAccept = {
                             scope.launch {
                                 container.settings.acceptDisclaimer()
@@ -66,8 +72,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        backgroundedAt = System.currentTimeMillis()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (backgroundedAt != 0L && System.currentTimeMillis() - backgroundedAt > RELOCK_AFTER_MS) unlocked = false
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         intent.getStringExtra(Notifications.EXTRA_SYMBOL)?.let { pendingSymbol = it }
+    }
+
+    private companion object {
+        const val RELOCK_AFTER_MS = 60_000L
     }
 }

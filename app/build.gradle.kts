@@ -84,6 +84,10 @@ dependencies {
     implementation(libs.billing)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
+    implementation(libs.sqlcipher)
+    implementation(libs.androidx.sqlite)
+    implementation(libs.biometric)
+    implementation(libs.androidx.fragment)
 
     debugImplementation(libs.compose.ui.tooling)
 

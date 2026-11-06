@@ -1,3 +1,6 @@
+# SQLCipher is called from native code.
+-keep class net.zetetic.database.** { *; }
+
 # kotlinx.serialization: keep generated serializers for the API DTOs.
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.**
