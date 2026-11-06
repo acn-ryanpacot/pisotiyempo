@@ -58,7 +58,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
 @Composable
-fun PortfolioScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues) {
+internal fun RealPortfolioTab(onOpenStock: (String) -> Unit, contentPadding: PaddingValues) {
     val c = appContainer()
     val summary by remember { c.portfolio.summary() }.collectAsStateWithLifecycle(null)
     val trades by remember { c.portfolio.trades() }.collectAsStateWithLifecycle(emptyList())

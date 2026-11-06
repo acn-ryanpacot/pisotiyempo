@@ -36,6 +36,7 @@ import com.pisotiyempo.ui.common.MutedText
 import com.pisotiyempo.ui.dashboard.DashboardScreen
 import com.pisotiyempo.ui.market.MarketScreen
 import com.pisotiyempo.ui.portfolio.PortfolioScreen
+import com.pisotiyempo.ui.screener.ScreenerScreen
 import com.pisotiyempo.ui.search.SearchScreen
 import com.pisotiyempo.ui.settings.SettingsScreen
 import com.pisotiyempo.ui.stock.StockDetailScreen
@@ -70,6 +71,7 @@ fun AppNav(openSymbol: String?, onSymbolOpened: () -> Unit) {
         }
         composable("search") { SearchScreen(onOpenStock = openStock, onBack = { nav.popBackStack() }) }
         composable("settings") { SettingsScreen(onBack = { nav.popBackStack() }) }
+        composable("screener") { ScreenerScreen(onOpenStock = openStock, onBack = { nav.popBackStack() }) }
     }
 }
 
@@ -117,7 +119,7 @@ private fun TabsHost(rootNav: NavHostController, openStock: (String) -> Unit) {
     ) { padding ->
         NavHost(tabsNav, startDestination = Tab.DASHBOARD.route) {
             composable(Tab.DASHBOARD.route) { DashboardScreen(openStock, padding) }
-            composable(Tab.MARKET.route) { MarketScreen(openStock, padding) }
+            composable(Tab.MARKET.route) { MarketScreen(openStock, padding, onOpenScreener = { rootNav.navigate("screener") }) }
             composable(Tab.PORTFOLIO.route) { PortfolioScreen(openStock, padding) }
             composable(Tab.WATCHLIST.route) { WatchlistScreen(openStock, padding) }
             composable(Tab.TOOLS.route) { ToolsScreen(padding) }

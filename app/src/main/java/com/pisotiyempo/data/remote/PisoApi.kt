@@ -43,8 +43,10 @@ class PisoApi(
     suspend fun dividends(symbol: String): SourcedDto<List<DividendDto>> = get("/v1/dividends/$symbol")
     suspend fun disclosures(symbol: String): SourcedDto<List<DisclosureDto>> = get("/v1/disclosures/$symbol")
     suspend fun foreignFlow(): SourcedDto<ForeignFlowDto> = get("/v1/foreign-flow")
-    suspend fun brief(): BriefResponse = get("/v1/ai/brief")
+    suspend fun brief(lang: String = "en"): BriefResponse = get("/v1/ai/brief?lang=$lang")
     suspend fun analyze(request: AnalyzeRequest): AnalyzeResponse = post("/v1/ai/analyze", ApiJson.encodeToString(AnalyzeRequest.serializer(), request))
+    suspend fun journalReview(request: JournalReviewRequest): JournalReviewResponse =
+        post("/v1/ai/journal-review", ApiJson.encodeToString(JournalReviewRequest.serializer(), request))
     suspend fun summarizeDisclosure(request: DisclosureRequest): DisclosureSummaryResponse =
         post("/v1/ai/disclosure", ApiJson.encodeToString(DisclosureRequest.serializer(), request))
 

@@ -90,7 +90,7 @@ class MarketViewModel(c: AppContainer) : ViewModel() {
 }
 
 @Composable
-fun MarketScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues) {
+fun MarketScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues, onOpenScreener: () -> Unit) {
     val container = appContainer()
     val vm: MarketViewModel = viewModel { MarketViewModel(container) }
     val state by vm.state.collectAsStateWithLifecycle()
@@ -101,6 +101,11 @@ fun MarketScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues) {
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = contentPadding.calculateTopPadding() + 8.dp, bottom = contentPadding.calculateBottomPadding() + 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item {
+            SectionCard("Stock screener", trailing = { androidx.compose.material3.Button(onClick = onOpenScreener) { Text("Open") } }) {
+                MutedText("Find uptrends, oversold bounces, breakouts and volume surges among the stocks the app analyzes.")
+            }
+        }
         item { PseiCard(state) }
         item { BreadthCard(state.stats) }
         item { SectorsCard(state.sectors) }

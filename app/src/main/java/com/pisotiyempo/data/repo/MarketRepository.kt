@@ -52,6 +52,8 @@ class MarketRepository(
 
     suspend fun mostActive(limit: Int): List<String> = db.stocks().mostActive(limit)
 
+    suspend fun stockNow(symbol: String): StockEntity? = db.stocks().get(symbol)
+
     private suspend fun userEodhd(): EodhdDirect? = secrets.get(SecretStore.EODHD_KEY)?.let { EodhdDirect(it) }
 
     suspend fun hasUserEodhdKey(): Boolean = secrets.get(SecretStore.EODHD_KEY) != null

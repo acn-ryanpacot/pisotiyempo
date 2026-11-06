@@ -18,12 +18,16 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 data class Settings(
     val disclaimerAccepted: Boolean = false,
     val aiEnabled: Boolean = true,
+    /** Language for AI and analysis text: "en", "fil" or "taglish". */
+    val aiLanguage: String = "en",
     /** Send anonymous crash reports (only when the build includes Firebase Crashlytics). */
     val crashReports: Boolean = true,
     /** Trading capital used by the position sizer. */
     val capital: Double = 100_000.0,
     /** Percent of capital to risk per trade. */
     val riskPct: Double = 1.0,
+    /** Starting balance of the practice (paper trading) account. */
+    val paperStartingCash: Double = 100_000.0,
     val fees: FeeSchedule = FeeSchedule(),
     val lastSyncAt: Long = 0,
     val lastSyncDate: String? = null,
@@ -35,9 +39,11 @@ class SettingsStore(private val context: Context) {
     private object Keys {
         val disclaimer = booleanPreferencesKey("disclaimer_accepted_v1")
         val ai = booleanPreferencesKey("ai_enabled")
+        val aiLanguage = stringPreferencesKey("ai_language")
         val crashReports = booleanPreferencesKey("crash_reports")
         val capital = doublePreferencesKey("capital")
         val risk = doublePreferencesKey("risk_pct")
+        val paperCash = doublePreferencesKey("paper_starting_cash")
         val commission = doublePreferencesKey("commission_rate")
         val minCommission = doublePreferencesKey("min_commission")
         val salesTax = doublePreferencesKey("sales_tax_rate")
@@ -56,9 +62,11 @@ class SettingsStore(private val context: Context) {
         return Settings(
             disclaimerAccepted = this[Keys.disclaimer] ?: false,
             aiEnabled = this[Keys.ai] ?: true,
+            aiLanguage = this[Keys.aiLanguage] ?: "en",
             crashReports = this[Keys.crashReports] ?: true,
             capital = this[Keys.capital] ?: 100_000.0,
             riskPct = this[Keys.risk] ?: 1.0,
+            paperStartingCash = this[Keys.paperCash] ?: 100_000.0,
             fees = d.copy(
                 commissionRate = this[Keys.commission] ?: d.commissionRate,
                 minCommission = this[Keys.minCommission] ?: d.minCommission,
@@ -75,7 +83,11 @@ class SettingsStore(private val context: Context) {
 
     suspend fun setAiEnabled(enabled: Boolean) = context.dataStore.edit { it[Keys.ai] = enabled }
 
+    suspend fun setAiLanguage(lang: String) = context.dataStore.edit { it[Keys.aiLanguage] = lang }
+
     suspend fun setCrashReports(enabled: Boolean) = context.dataStore.edit { it[Keys.crashReports] = enabled }
+
+    suspend fun setPaperStartingCash(amount: Double) = context.dataStore.edit { it[Keys.paperCash] = amount }
 
     suspend fun setRisk(capital: Double, riskPct: Double) = context.dataStore.edit {
         it[Keys.capital] = capital

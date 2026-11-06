@@ -49,6 +49,18 @@ data class AnalysisEntity(
     val avgDailyValue: Double,
     val isLiquid: Boolean,
     val updatedAt: Long,
+    // Screener fields (schema v2)
+    val sector: String,
+    val rsi14: Double?,
+    val aboveSma50: Boolean?,
+    val aboveSma200: Boolean?,
+    /** Names of all directional patterns found, newline-separated. */
+    val patternNames: String,
+    val bullishCount: Int,
+    val bearishCount: Int,
+    /** Latest volume divided by the 20-day average. */
+    val volumeRatio: Double?,
+    val return3mPct: Double?,
 )
 
 @Entity(tableName = "trades", indices = [Index("symbol")])
@@ -61,6 +73,31 @@ data class TradeEntity(
     val fees: Double,
     val date: String,
     val note: String = "",
+    /** [ACCOUNT_REAL] or [ACCOUNT_PAPER] (practice trading with virtual money). */
+    val account: String = ACCOUNT_REAL,
+) {
+    companion object {
+        const val ACCOUNT_REAL = "REAL"
+        const val ACCOUNT_PAPER = "PAPER"
+    }
+}
+
+/** A trading-journal note: why a trade was taken, how it felt and what was learned. */
+@Entity(tableName = "journal", indices = [Index("symbol")])
+data class JournalEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val symbol: String,
+    val date: String,
+    val tradeId: Long? = null,
+    val setup: String,
+    val reason: String,
+    val emotion: String,
+    /** Mistake tags, newline-separated. */
+    val mistakes: String,
+    val lesson: String,
+    /** 1-5, how well the plan was followed. */
+    val rating: Int? = null,
+    val createdAt: Long,
 )
 
 @Entity(tableName = "watchlist")

@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { AiUnavailableError, analyzeStock, summarizeDisclosure, writeMarketBrief } from "./ai/claude";
+import { AiUnavailableError, analyzeStock, parseLang, reviewJournal, summarizeDisclosure, writeMarketBrief, type Lang } from "./ai/claude";
+import { parseJournalInput } from "./ai/journal";
 import { parseFeatures, ValidationError, type MarketBrief } from "./ai/schemas";
 import { CLOSURES_KEY, type Closures } from "./calendar";
 import { fetchSubscription, premiumUntil } from "./billing";
@@ -114,7 +115,17 @@ async function handle(request: Request, env: Env, ctx: ExecutionContext): Promis
     }
     if (path === "/v1/ai/brief") {
       const stored = await env.CACHE.get<StoredBrief>("brief:latest", "json");
-      return stored ? json(stored, 200, 900) : error(404, "not_available", "No brief has been generated yet.");
+      if (!stored) return error(404, "not_available", "No brief has been generated yet.");
+      const lang = parseLang(url.searchParams.get("lang"));
+      if (lang === "en") return json(stored, 200, 900);
+      // Other languages are written on first request for the day and kept for everyone.
+      const key = `brief:latest:${lang}`;
+      const translated = await env.CACHE.get<StoredBrief>(key, "json");
+      if (translated?.date === stored.date) return json(translated, 200, 900);
+      if (!aiEnabled(env)) return json(stored, 200, 900);
+      const fresh = await briefFor(market, env.ANTHROPIC_API_KEY, stored.date, lang);
+      await env.CACHE.put(key, JSON.stringify(fresh));
+      return json(fresh, 200, 900);
     }
 
     const m = path.match(/^\/v1\/(history|dividends|disclosures)\/([A-Za-z0-9]+)$/);
@@ -130,9 +141,11 @@ async function handle(request: Request, env: Env, ctx: ExecutionContext): Promis
   if (request.method === "POST" && path === "/v1/ai/analyze") {
     if (!aiEnabled(env)) return error(503, "ai_unavailable", "AI analysis is switched off.");
     if (premiumAi && !isPremium) return error(402, "premium_required", "AI analysis is part of Premium.");
-    const features = parseFeatures(await request.json());
+    const body = (await request.json()) as Record<string, unknown>;
+    const features = parseFeatures(body);
+    const lang = parseLang(body.lang);
     // The analysis is shared by every user who opens this stock today, so cost grows with stocks, not users.
-    const key = `analysis:${features.symbol}:${features.asOf}`;
+    const key = `analysis:${features.symbol}:${features.asOf}:${lang}`;
     const hit = await cacheGet(key);
     if (hit) return json(hit);
 
@@ -142,7 +155,7 @@ async function handle(request: Request, env: Env, ctx: ExecutionContext): Promis
     if (features.asOf !== quote.date) return error(409, "stale", `Expected data as of ${quote.date}; sync first.`);
     if (Math.abs(features.close - quote.close) / quote.close > 0.02) return error(409, "mismatch", "Close price does not match market data.");
 
-    const analysis = await analyzeStock(env.ANTHROPIC_API_KEY, features);
+    const analysis = await analyzeStock(env.ANTHROPIC_API_KEY, features, lang);
     const result = { symbol: features.symbol, asOf: features.asOf, model: "claude-haiku-5-5", analysis };
     ctx.waitUntil(cachePut(key, result, 24 * 3600));
     return json(result);
@@ -151,11 +164,12 @@ async function handle(request: Request, env: Env, ctx: ExecutionContext): Promis
   if (request.method === "POST" && path === "/v1/ai/disclosure") {
     if (!aiEnabled(env)) return error(503, "ai_unavailable", "AI analysis is switched off.");
     if (premiumAi && !isPremium) return error(402, "premium_required", "AI summaries are part of Premium.");
-    const body = (await request.json()) as { id?: unknown; symbol?: unknown };
+    const body = (await request.json()) as { id?: unknown; symbol?: unknown; lang?: unknown };
+    const lang = parseLang(body.lang);
     const id = typeof body.id === "string" && /^[0-9a-f]{16,40}$/.test(body.id) ? body.id : null;
     const symbol = typeof body.symbol === "string" ? body.symbol.toUpperCase() : "";
     if (!id || !SYMBOL_PATTERN.test(symbol)) return error(400, "invalid", "id and symbol are required");
-    const key = `disclosure:${id}`;
+    const key = `disclosure:${id}:${lang}`;
     const hit = await cacheGet(key);
     if (hit) return json(hit);
 
@@ -163,13 +177,35 @@ async function handle(request: Request, env: Env, ctx: ExecutionContext): Promis
     const disclosure = (await market.disclosures(symbol)).data.find((d) => d.id === id);
     if (!disclosure) return error(404, "not_found", "Disclosure not found for this symbol");
     const text = await market.disclosureText(id);
-    const summary = await summarizeDisclosure(env.ANTHROPIC_API_KEY, disclosure.title, text);
+    const summary = await summarizeDisclosure(env.ANTHROPIC_API_KEY, disclosure.title, text, lang);
     const result = { id, model: "claude-haiku-5-5", summary };
     ctx.waitUntil(cachePut(key, result, 30 * 24 * 3600));
     return json(result);
   }
 
+  if (request.method === "POST" && path === "/v1/ai/journal-review") {
+    if (!aiEnabled(env)) return error(503, "ai_unavailable", "AI analysis is switched off.");
+    if (premiumAi && !isPremium) return error(402, "premium_required", "AI coaching is part of Premium.");
+    const body = (await request.json()) as Record<string, unknown>;
+    const input = parseJournalInput(body);
+    // One review per install (or per IP without a session) per day: each one is a personal Opus call.
+    const who = session?.installId ?? request.headers.get("CF-Connecting-IP") ?? "anonymous";
+    const limitKey = `journal-limit:${who}:${phtToday()}`;
+    if (await cacheGet(limitKey)) return error(429, "rate_limited", "You can get one AI review a day. Try again tomorrow.");
+    const review = await reviewJournal(env.ANTHROPIC_API_KEY, input, parseLang(body.lang));
+    ctx.waitUntil(cachePut(limitKey, { at: Date.now() }, 24 * 3600));
+    return json({ model: "claude-opus-5-5", review });
+  }
+
   return error(404, "not_found", "Unknown endpoint");
+}
+
+async function briefFor(market: Market, apiKey: string, date: string, lang: Lang): Promise<StoredBrief> {
+  const snapshot = await market.latest();
+  const psei = await market.psei(addDays(date, -10)).catch(() => null);
+  const stats = computeMarketStats(snapshot.data.date, snapshot.data.quotes, psei?.data ?? []);
+  const brief = await writeMarketBrief(apiKey, stats, lang);
+  return { date: snapshot.data.date, model: "claude-opus-5-5", generatedAt: new Date().toISOString(), brief };
 }
 
 /**

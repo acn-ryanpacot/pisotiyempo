@@ -53,7 +53,7 @@ object RuleBasedAnalyst {
 
     private fun peso(v: Double) = "₱" + String.format(Locale.US, if (v >= 100) "%,.2f" else if (v >= 1) "%.2f" else "%.4f", v)
 
-    fun stock(a: StockAnalysis): Narrative {
+    fun stock(a: StockAnalysis, lang: String = "en"): Narrative {
         val bullish = a.patterns.filter { it.direction == Direction.BULLISH }
         val bearish = a.patterns.filter { it.direction == Direction.BEARISH }
         val trend = a.components["Trend"] ?: 0.0
@@ -108,7 +108,7 @@ object RuleBasedAnalyst {
         )
     }
 
-    fun market(stats: MarketStats): MarketBrief {
+    fun market(stats: MarketStats, lang: String = "en"): MarketBrief {
         val total = stats.advancers + stats.decliners + stats.unchanged
         val breadth = if (total > 0) (stats.advancers - stats.decliners).toDouble() / total else 0.0
         val pc = stats.pseiChangePct

@@ -113,6 +113,10 @@ data class StockAnalysis(
     val plan: TradePlan?,
     val avgDailyValue: Double,
     val backtest: List<BacktestStat> = emptyList(),
+    /** Latest volume divided by the prior 20-day average. */
+    val volumeRatio: Double? = null,
+    /** Price change over the last 63 trading days (about 3 months), in percent. */
+    val return3mPct: Double? = null,
 ) {
     val stance: Stance get() = Stance.fromScore(score)
     val isLiquid: Boolean get() = avgDailyValue >= MIN_LIQUID_VALUE

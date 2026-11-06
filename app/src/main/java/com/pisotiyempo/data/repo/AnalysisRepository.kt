@@ -4,7 +4,9 @@ import com.pisotiyempo.data.local.AnalysisEntity
 import com.pisotiyempo.data.local.AppDatabase
 import com.pisotiyempo.domain.analysis.ScoredStock
 import com.pisotiyempo.domain.analysis.StockAnalyzer
+import com.pisotiyempo.domain.model.Direction
 import com.pisotiyempo.domain.model.PatternCategory
+import com.pisotiyempo.domain.ph.Sectors
 import com.pisotiyempo.domain.model.Stance
 import com.pisotiyempo.domain.model.StockAnalysis
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +48,8 @@ class AnalysisRepository(
     suspend fun scoredNow(): List<ScoredStock> = db.analyses().all().map { it.toScored() }
 
     fun observe(symbol: String): Flow<AnalysisEntity?> = db.analyses().observe(symbol)
+
+    fun observeAll(): Flow<List<AnalysisEntity>> = db.analyses().observeAll()
 }
 
 private fun StockAnalysis.toEntity() = AnalysisEntity(
@@ -63,6 +67,15 @@ private fun StockAnalysis.toEntity() = AnalysisEntity(
     avgDailyValue = avgDailyValue,
     isLiquid = isLiquid,
     updatedAt = System.currentTimeMillis(),
+    sector = Sectors.of(symbol),
+    rsi14 = indicators["rsi14"],
+    aboveSma50 = indicators["sma50"]?.let { close > it },
+    aboveSma200 = indicators["sma200"]?.let { close > it },
+    patternNames = patterns.filter { it.direction != Direction.NEUTRAL }.joinToString("\n") { it.name },
+    bullishCount = patterns.count { it.direction == Direction.BULLISH },
+    bearishCount = patterns.count { it.direction == Direction.BEARISH },
+    volumeRatio = volumeRatio,
+    return3mPct = return3mPct,
 )
 
 fun AnalysisEntity.toScored() = ScoredStock(

@@ -1,0 +1,226 @@
+package com.pisotiyempo.ui.screener
+
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pisotiyempo.data.local.AnalysisEntity
+import com.pisotiyempo.domain.analysis.PatternFilter
+import com.pisotiyempo.domain.analysis.ScreenCriteria
+import com.pisotiyempo.domain.analysis.ScreenPreset
+import com.pisotiyempo.domain.analysis.ScreenRow
+import com.pisotiyempo.domain.analysis.ScreenSort
+import com.pisotiyempo.domain.analysis.Screener
+import com.pisotiyempo.domain.model.Stance
+import com.pisotiyempo.domain.ph.Sectors
+import com.pisotiyempo.ui.common.Fmt
+import com.pisotiyempo.ui.common.MutedText
+import com.pisotiyempo.ui.common.SectionCard
+import com.pisotiyempo.ui.common.StanceBadge
+import com.pisotiyempo.ui.common.StockRow
+import com.pisotiyempo.ui.common.appContainer
+import kotlinx.coroutines.flow.map
+
+private fun AnalysisEntity.toRow() = ScreenRow(
+    symbol = symbol,
+    name = name,
+    sector = sector,
+    close = close,
+    changePct = changePct,
+    score = score,
+    stance = runCatching { Stance.valueOf(stance) }.getOrDefault(Stance.fromScore(score)),
+    rsi14 = rsi14,
+    aboveSma50 = aboveSma50,
+    aboveSma200 = aboveSma200,
+    patterns = patternNames.lines().filter { it.isNotBlank() },
+    bullishCount = bullishCount,
+    bearishCount = bearishCount,
+    volumeRatio = volumeRatio,
+    return3mPct = return3mPct,
+    avgDailyValue = avgDailyValue,
+    isLiquid = isLiquid,
+)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun ScreenerScreen(onOpenStock: (String) -> Unit, onBack: () -> Unit) {
+    val c = appContainer()
+    val rows by remember { c.analysis.observeAll().map { list -> list.map { it.toRow() } } }.collectAsStateWithLifecycle(emptyList())
+    var criteria by remember { mutableStateOf(ScreenPreset.STRONG_UPTREND.criteria) }
+    var preset by remember { mutableStateOf<ScreenPreset?>(ScreenPreset.STRONG_UPTREND) }
+    var showFilters by remember { mutableStateOf(false) }
+    val results = remember(rows, criteria) { Screener.run(rows, criteria) }
+    fun update(transform: (ScreenCriteria) -> ScreenCriteria) {
+        criteria = transform(criteria)
+        preset = null
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Screener") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                actions = { TextButton(onClick = { showFilters = !showFilters }) { Text(if (showFilters) "Hide filters" else "Filters") } },
+            )
+        },
+    ) { padding ->
+        LazyColumn(
+            Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding() + 16.dp),
+        ) {
+            item {
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    ScreenPreset.entries.forEach { p ->
+                        FilterChip(selected = preset == p, onClick = { preset = p; criteria = p.criteria }, label = { Text(p.label) })
+                    }
+                }
+                MutedText(preset?.description ?: "Custom scan")
+            }
+            if (showFilters) item { Filters(criteria, ::update) }
+            item {
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Sort:", style = MaterialTheme.typography.labelLarge)
+                    ScreenSort.entries.forEach { s ->
+                        FilterChip(
+                            selected = criteria.sort == s,
+                            onClick = { update { c0 -> if (c0.sort == s) c0.copy(descending = !c0.descending) else c0.copy(sort = s, descending = true) } },
+                            label = { Text(if (criteria.sort == s) "${s.label} ${if (criteria.descending) "↓" else "↑"}" else s.label) },
+                        )
+                    }
+                }
+                MutedText("${results.size} of ${rows.size} analyzed stocks match. The app analyzes the 120 most-traded PSE stocks plus your holdings and watchlist each day.")
+            }
+            if (rows.isEmpty()) item { MutedText("Nothing to screen yet. Results appear after the first daily sync.") }
+            items(results, key = { it.symbol }) { r ->
+                StockRow(
+                    symbol = r.symbol,
+                    name = r.name,
+                    price = r.close,
+                    changePct = r.changePct,
+                    subtitle = listOfNotNull(
+                        r.sector,
+                        r.rsi14?.let { "RSI ${it.toInt()}" },
+                        r.return3mPct?.let { "3M ${Fmt.pct(it)}" },
+                        r.patterns.firstOrNull(),
+                    ).joinToString(" · "),
+                    trailing = { StanceBadge(r.stance, r.score) },
+                    onClick = { onOpenStock(r.symbol) },
+                )
+                HorizontalDivider()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun Filters(c: ScreenCriteria, update: ((ScreenCriteria) -> ScreenCriteria) -> Unit) {
+    SectionCard("Filters") {
+        Text("Sectors", style = MaterialTheme.typography.labelLarge)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Sectors.ALL.forEach { s ->
+                FilterChip(selected = s in c.sectors, onClick = { update { it.copy(sectors = if (s in it.sectors) it.sectors - s else it.sectors + s) } }, label = { Text(s) })
+            }
+        }
+        Text("Rating", style = MaterialTheme.typography.labelLarge)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Stance.entries.forEach { s ->
+                FilterChip(selected = s in c.stances, onClick = { update { it.copy(stances = if (s in it.stances) it.stances - s else it.stances + s) } }, label = { Text(s.label) })
+            }
+        }
+        Text("Trend", style = MaterialTheme.typography.labelLarge)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            TriChip("Above 50-day", c.aboveSma50) { v -> update { it.copy(aboveSma50 = v) } }
+            TriChip("Above 200-day", c.aboveSma200) { v -> update { it.copy(aboveSma200 = v) } }
+        }
+        Text("Patterns", style = MaterialTheme.typography.labelLarge)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            PatternFilter.entries.forEach { p ->
+                FilterChip(selected = c.patternFilter == p, onClick = { update { it.copy(patternFilter = p) } }, label = { Text(p.label) })
+            }
+        }
+        OutlinedTextField(c.patternName, { v -> update { it.copy(patternName = v) } }, label = { Text("Pattern name contains (e.g. flag, double bottom)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NumberBox("Min score", c.minScore?.toString(), Modifier.weight(1f)) { v -> update { it.copy(minScore = v?.toInt()) } }
+            NumberBox("Max score", c.maxScore?.toString(), Modifier.weight(1f)) { v -> update { it.copy(maxScore = v?.toInt()) } }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NumberBox("Min RSI", c.minRsi?.let { Fmt.num(it, 0) }, Modifier.weight(1f)) { v -> update { it.copy(minRsi = v) } }
+            NumberBox("Max RSI", c.maxRsi?.let { Fmt.num(it, 0) }, Modifier.weight(1f)) { v -> update { it.copy(maxRsi = v) } }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NumberBox("Min volume × avg", c.minVolumeRatio?.let { Fmt.num(it, 1) }, Modifier.weight(1f)) { v -> update { it.copy(minVolumeRatio = v) } }
+            NumberBox("Min 3M return %", c.minReturn3m?.let { Fmt.num(it, 0) }, Modifier.weight(1f)) { v -> update { it.copy(minReturn3m = v) } }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Liquid stocks only", style = MaterialTheme.typography.bodyLarge)
+                MutedText("At least ₱2M traded a day on average")
+            }
+            Switch(checked = c.liquidOnly, onCheckedChange = { on -> update { it.copy(liquidOnly = on) } })
+        }
+        TextButton(onClick = { update { ScreenCriteria() } }) { Text("Clear all filters") }
+        MutedText("P/E and dividend-yield filters need EODHD's fundamentals data, which this version doesn't use.")
+    }
+}
+
+/** A chip that cycles: any → yes → no → any. */
+@Composable
+private fun TriChip(label: String, value: Boolean?, onChange: (Boolean?) -> Unit) {
+    FilterChip(
+        selected = value != null,
+        onClick = { onChange(when (value) { null -> true; true -> false; false -> null }) },
+        label = { Text(when (value) { null -> label; true -> "$label: yes"; false -> "$label: no" }) },
+    )
+}
+
+/** A number field that keeps its own text so partial input like "-" or "1." isn't lost while typing. */
+@Composable
+private fun NumberBox(label: String, value: String?, modifier: Modifier, onChange: (Double?) -> Unit) {
+    // Reset only when the filter is cleared, not on every keystroke's reformatted value.
+    var text by remember(value == null) { mutableStateOf(value.orEmpty()) }
+    OutlinedTextField(
+        text,
+        { t ->
+            text = t
+            if (t.isBlank()) onChange(null) else t.toDoubleOrNull()?.let(onChange)
+        },
+        label = { Text(label) },
+        singleLine = true,
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+    )
+}

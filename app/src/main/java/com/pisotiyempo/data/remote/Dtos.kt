@@ -128,6 +128,8 @@ data class AnalyzeRequest(
     val levels: LevelsDto,
     val backtest: List<BacktestFeatureDto>,
     val signals: List<String>,
+    /** "en", "fil" or "taglish". */
+    val lang: String = "en",
 )
 
 @Serializable
@@ -147,7 +149,7 @@ data class AiAnalysisDto(
 data class AnalyzeResponse(val symbol: String, val asOf: String, val model: String, val analysis: AiAnalysisDto)
 
 @Serializable
-data class DisclosureRequest(val id: String, val symbol: String)
+data class DisclosureRequest(val id: String, val symbol: String, val lang: String = "en")
 
 @Serializable
 data class DisclosureSummaryDto(val summary: String, val impact: String, val keyPoints: List<String>)
@@ -160,6 +162,36 @@ data class SessionRequest(val installId: String, val integrityToken: String?, va
 
 @Serializable
 data class SessionDto(val token: String, val expiresAt: Long, val premiumUntil: Long? = null)
+
+@Serializable
+data class JournalEntryDto(
+    val date: String,
+    val symbol: String,
+    val setup: String,
+    val emotion: String,
+    val mistakes: List<String>,
+    val rating: Int?,
+    val reason: String,
+    val lesson: String,
+)
+
+@Serializable
+data class ClosedTradeDto(val symbol: String, val date: String, val pnlPct: Double, val holdingDays: Long)
+
+@Serializable
+data class JournalReviewRequest(val entries: List<JournalEntryDto>, val closed: List<ClosedTradeDto>, val lang: String = "en")
+
+@Serializable
+data class JournalReviewDto(
+    val summary: String,
+    val strengths: List<String>,
+    val recurringMistakes: List<String>,
+    val suggestions: List<String>,
+    val focusNextWeek: String,
+)
+
+@Serializable
+data class JournalReviewResponse(val model: String, val review: JournalReviewDto)
 
 @Serializable
 data class ErrorDto(val error: String, val message: String = "")

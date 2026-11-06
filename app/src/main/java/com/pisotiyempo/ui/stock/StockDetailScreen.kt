@@ -75,6 +75,7 @@ import com.pisotiyempo.ui.common.StanceBadge
 import com.pisotiyempo.ui.common.appContainer
 import com.pisotiyempo.ui.common.changeColor
 import com.pisotiyempo.ui.portfolio.AddTradeDialog
+import com.pisotiyempo.ui.portfolio.PracticeOrderDialog
 import com.pisotiyempo.ui.theme.LocalMarketColors
 import com.pisotiyempo.ui.watchlist.AddAlertDialog
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -136,6 +137,7 @@ fun StockDetailScreen(symbol: String, onBack: () -> Unit) {
     val summarizing by vm.summarizing.collectAsStateWithLifecycle()
     var showTrade by remember { mutableStateOf(false) }
     var showAlert by remember { mutableStateOf(false) }
+    var showPractice by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -173,7 +175,7 @@ fun StockDetailScreen(symbol: String, onBack: () -> Unit) {
                 item { IndicatorsCard(a) }
                 item { LevelsCard(a) }
                 item { BacktestCard(a) }
-                item { TradePlanCard(a, onAddTrade = { showTrade = true }) }
+                item { TradePlanCard(a, onAddTrade = { showTrade = true }, onPractice = { showPractice = true }) }
             }
             if (!loading && analysis == null) {
                 item { SectionCard { MutedText("Not enough price history to analyze $symbol yet (needs at least 30 trading days).") } }
@@ -186,6 +188,7 @@ fun StockDetailScreen(symbol: String, onBack: () -> Unit) {
 
     if (showTrade) AddTradeDialog(initialSymbol = symbol, initialPrice = stock?.close, onDismiss = { showTrade = false })
     if (showAlert) AddAlertDialog(symbol = symbol, currentPrice = stock?.close, onDismiss = { showAlert = false })
+    if (showPractice) PracticeOrderDialog(initialSymbol = symbol, onDismiss = { showPractice = false })
 }
 
 @Composable
@@ -380,7 +383,7 @@ private fun BacktestCard(a: StockAnalysis) {
 }
 
 @Composable
-private fun TradePlanCard(a: StockAnalysis, onAddTrade: () -> Unit) {
+private fun TradePlanCard(a: StockAnalysis, onAddTrade: () -> Unit, onPractice: () -> Unit) {
     val settings by appContainer().settings.settings.collectAsStateWithLifecycle(null)
     SectionCard("Trade plan (long)") {
         val plan = a.plan
@@ -409,7 +412,10 @@ private fun TradePlanCard(a: StockAnalysis, onAddTrade: () -> Unit) {
             MutedText("Max loss at stop ≈ ${Fmt.peso(size.riskAmount)} plus fees. Break-even after all fees and taxes: ${Fmt.peso(be)}." +
                 if (size.limitedByCapital) " Position capped by available capital." else "")
         }
-        OutlinedButton(onClick = onAddTrade) { Text("Record a trade") }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onAddTrade) { Text("Record a trade") }
+            OutlinedButton(onClick = onPractice) { Text("Practice trade") }
+        }
     }
 }
 

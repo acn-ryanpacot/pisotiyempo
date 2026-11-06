@@ -86,11 +86,35 @@ interface TradeDao {
     @Query("DELETE FROM trades WHERE id = :id")
     suspend fun delete(id: Long)
 
-    @Query("SELECT * FROM trades ORDER BY date DESC, id DESC")
-    fun observeAll(): Flow<List<TradeEntity>>
+    @Insert
+    suspend fun insertAll(trades: List<TradeEntity>)
 
-    @Query("SELECT * FROM trades")
-    suspend fun all(): List<TradeEntity>
+    @Query("SELECT * FROM trades WHERE account = :account ORDER BY date DESC, id DESC")
+    fun observe(account: String): Flow<List<TradeEntity>>
+
+    @Query("SELECT * FROM trades WHERE account = :account")
+    suspend fun all(account: String): List<TradeEntity>
+
+    @Query("DELETE FROM trades WHERE account = :account")
+    suspend fun deleteAccount(account: String)
+}
+
+@Dao
+interface JournalDao {
+    @Insert
+    suspend fun insert(entry: JournalEntity): Long
+
+    @Insert
+    suspend fun insertAll(entries: List<JournalEntity>)
+
+    @Query("DELETE FROM journal WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("SELECT * FROM journal ORDER BY date DESC, id DESC")
+    fun observeAll(): Flow<List<JournalEntity>>
+
+    @Query("SELECT * FROM journal ORDER BY date DESC, id DESC")
+    suspend fun all(): List<JournalEntity>
 }
 
 @Dao

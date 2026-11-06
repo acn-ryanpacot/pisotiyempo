@@ -107,6 +107,8 @@ object StockAnalyzer {
             plan = tradePlan(close, s.atr[i].orNull(), supports.firstOrNull()?.price, resistances.firstOrNull()?.price, patterns),
             avgDailyValue = Indicators.averageValue(bars),
             backtest = backtest,
+            volumeRatio = Indicators.averageVolume(bars, i - 1, 20).takeIf { it > 0 }?.let { bars[i].volume / it },
+            return3mPct = if (bars.size > 63) (close / bars[i - 63].close - 1) * 100 else null,
         )
     }
 

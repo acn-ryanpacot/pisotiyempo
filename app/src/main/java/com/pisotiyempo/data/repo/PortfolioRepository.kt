@@ -1,6 +1,7 @@
 package com.pisotiyempo.data.repo
 
 import com.pisotiyempo.data.local.AppDatabase
+import com.pisotiyempo.data.local.JournalEntity
 import com.pisotiyempo.data.local.TradeEntity
 import com.pisotiyempo.data.local.WatchEntity
 import com.pisotiyempo.domain.portfolio.CashDividend
@@ -15,10 +16,10 @@ import java.time.LocalDate
 
 class PortfolioRepository(private val db: AppDatabase) {
 
-    fun trades(): Flow<List<TradeEntity>> = db.trades().observeAll()
+    fun trades(account: String = TradeEntity.ACCOUNT_REAL): Flow<List<TradeEntity>> = db.trades().observe(account)
 
-    fun summary(): Flow<PortfolioSummary> = combine(
-        db.trades().observeAll(),
+    fun summary(account: String = TradeEntity.ACCOUNT_REAL): Flow<PortfolioSummary> = combine(
+        db.trades().observe(account),
         db.stocks().observeAll(),
         db.dividends().observeAll(),
     ) { trades, stocks, divs ->
@@ -30,12 +31,30 @@ class PortfolioRepository(private val db: AppDatabase) {
         )
     }
 
+    /** Real holdings only: practice positions don't drive sell signals, alerts or disclosure syncing. */
     suspend fun holdingSymbols(): Set<String> =
-        PortfolioMath.summarize(db.trades().all().map { it.toTrade() }, emptyMap()).holdings.map { it.symbol }.toSet()
+        PortfolioMath.summarize(db.trades().all(TradeEntity.ACCOUNT_REAL).map { it.toTrade() }, emptyMap()).holdings.map { it.symbol }.toSet()
+
+    suspend fun allTrades(account: String): List<TradeEntity> = db.trades().all(account)
 
     suspend fun addTrade(trade: TradeEntity) = db.trades().insert(trade)
 
+    suspend fun addTrades(trades: List<TradeEntity>) = db.trades().insertAll(trades)
+
+    /** Deletes every practice trade, returning the practice account to its starting cash. */
+    suspend fun resetPractice() = db.trades().deleteAccount(TradeEntity.ACCOUNT_PAPER)
+
     suspend fun deleteTrade(id: Long) = db.trades().delete(id)
+
+    fun journal(): Flow<List<JournalEntity>> = db.journal().observeAll()
+
+    suspend fun journalNow(): List<JournalEntity> = db.journal().all()
+
+    suspend fun addJournal(entry: JournalEntity) = db.journal().insert(entry)
+
+    suspend fun addJournalEntries(entries: List<JournalEntity>) = db.journal().insertAll(entries)
+
+    suspend fun deleteJournal(id: Long) = db.journal().delete(id)
 
     fun watchlist(): Flow<List<String>> = db.watchlist().observeAll().map { rows -> rows.map { it.symbol } }
 

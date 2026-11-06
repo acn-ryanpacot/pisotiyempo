@@ -18,6 +18,17 @@ data class Trade(
 
 data class CashDividend(val symbol: String, val exDate: LocalDate, val amountPerShare: Double)
 
+/** One sell, with the profit it realized against the position's average cost. */
+data class ClosedTrade(
+    val symbol: String,
+    val date: LocalDate,
+    val shares: Long,
+    val pnl: Double,
+    val pnlPct: Double,
+    /** Days since the position was opened (from zero shares). */
+    val holdingDays: Long,
+)
+
 data class Holding(
     val symbol: String,
     val sector: String,
@@ -45,6 +56,9 @@ data class PortfolioSummary(
     val dividendsReceived: Double,
     val sectorWeights: Map<String, Double>,
     val warnings: List<String>,
+    val closedTrades: List<ClosedTrade> = emptyList(),
+    /** Sell proceeds minus buy costs over all trades (fees included); negative means net cash invested. */
+    val netCashFlow: Double = 0.0,
 ) {
     val unrealizedPct: Double get() = if (costBasis > 0) unrealizedPnl / costBasis * 100 else 0.0
     val dayChangePct: Double get() = if (marketValue - dayChange > 0) dayChange / (marketValue - dayChange) * 100 else 0.0
@@ -61,9 +75,11 @@ object PortfolioMath {
         dividends: List<CashDividend> = emptyList(),
         sectorOf: (String) -> String = Sectors::of,
     ): PortfolioSummary {
-        data class Position(var shares: Long = 0, var cost: Double = 0.0)
+        data class Position(var shares: Long = 0, var cost: Double = 0.0, var openedOn: LocalDate? = null)
         val positions = mutableMapOf<String, Position>()
         var realized = 0.0
+        var cashFlow = 0.0
+        val closed = mutableListOf<ClosedTrade>()
         val ordered = trades.sortedWith(compareBy<Trade> { it.date }.thenBy { if (it.side == Side.BUY) 0 else 1 }.thenBy { it.id })
 
         // Shares held at each ex-date determine dividend entitlement.
@@ -83,14 +99,24 @@ object PortfolioMath {
             val p = positions.getOrPut(t.symbol) { Position() }
             when (t.side) {
                 Side.BUY -> {
+                    if (p.shares == 0L) p.openedOn = t.date
                     p.shares += t.shares
                     p.cost += t.shares * t.price + t.fees
+                    cashFlow -= t.shares * t.price + t.fees
                 }
                 Side.SELL -> {
                     val qty = minOf(t.shares, p.shares)
                     if (qty <= 0) continue
                     val avg = p.cost / p.shares
-                    realized += qty * t.price - t.fees - avg * qty
+                    // Fees on a partial fill are prorated so a bad import can't inflate the loss.
+                    val fees = t.fees * qty / t.shares
+                    val pnl = qty * t.price - fees - avg * qty
+                    realized += pnl
+                    cashFlow += qty * t.price - fees
+                    closed += ClosedTrade(
+                        t.symbol, t.date, qty, pnl, pnl / (avg * qty) * 100,
+                        p.openedOn?.let { java.time.temporal.ChronoUnit.DAYS.between(it, t.date) } ?: 0,
+                    )
                     p.cost -= avg * qty
                     p.shares -= qty
                 }
@@ -115,6 +141,8 @@ object PortfolioMath {
             dividendsReceived = dividendIncome,
             sectorWeights = weights,
             warnings = concentrationWarnings(holdings, mv, weights),
+            closedTrades = closed,
+            netCashFlow = cashFlow,
         )
     }
 
