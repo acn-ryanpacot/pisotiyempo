@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +51,7 @@ import com.pisotiyempo.ui.common.MutedText
 import com.pisotiyempo.ui.common.SectionCard
 import com.pisotiyempo.ui.common.appContainer
 import com.pisotiyempo.ui.common.changeColor
+import com.pisotiyempo.ui.UiLanguage
 import com.pisotiyempo.ui.lock.AppLock
 import com.pisotiyempo.work.CrashReporting
 import com.pisotiyempo.work.SyncService
@@ -81,6 +85,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             item { EodhdKeyCard() }
             item { BackupCard() }
             item { PracticeCashCard(s) }
+            item { LanguageCard(s) }
             item { AiCard(s) }
             item { AppLockCard(s) }
             item { CrashReportsCard(s) }
@@ -245,6 +250,40 @@ private fun AiCard(s: Settings) {
                 "Only the computed technical indicators are sent; your portfolio and trades never leave this phone. " +
                 "Off, or when AI is unavailable, the built-in rules engine writes the analysis instead.",
         )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LanguageCard(s: Settings) {
+    val c = appContainer()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val uiLanguage = remember { UiLanguage.get(context) }
+    SectionCard("Language / Wika") {
+        Text("App screens", style = MaterialTheme.typography.labelLarge)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(UiLanguage.ENGLISH to "English", UiLanguage.FILIPINO to "Filipino").forEach { (code, label) ->
+                FilterChip(
+                    selected = uiLanguage == code,
+                    onClick = {
+                        if (code != uiLanguage) {
+                            UiLanguage.set(context, code)
+                            // Redraw every screen in the new language.
+                            (context as? Activity)?.recreate()
+                        }
+                    },
+                    label = { Text(label) },
+                )
+            }
+        }
+        Text("Analysis and AI text", style = MaterialTheme.typography.labelLarge)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf("en" to "English", "fil" to "Filipino", "taglish" to "Taglish").forEach { (code, label) ->
+                FilterChip(selected = s.aiLanguage == code, onClick = { scope.launch { c.settings.setAiLanguage(code) } }, label = { Text(label) })
+            }
+        }
+        MutedText("Pattern names and indicator terms (RSI, MACD, support) stay in English, as they're used on every trading platform.")
     }
 }
 

@@ -1,6 +1,7 @@
 package com.pisotiyempo
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pisotiyempo.ui.UiLanguage
 import com.pisotiyempo.ui.lock.LockScreen
 import com.pisotiyempo.ui.nav.AppNav
 import com.pisotiyempo.ui.onboarding.DisclaimerScreen
@@ -70,6 +72,10 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(UiLanguage.wrap(newBase))
     }
 
     override fun onStop() {

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Names of domain values (see ui/common/Labels.kt). Filipino versions are in values-tl. -->
+<resources>
+    <string name="stance_strong_buy">Strong buy</string>
+    <string name="stance_buy">Buy</string>
+    <string name="stance_hold">Hold</string>
+    <string name="stance_reduce">Reduce</string>
+    <string name="stance_sell">Sell</string>
+
+    <string name="source_claude_haiku">AI · Claude Haiku</string>
+    <string name="source_claude_opus">AI · Claude Opus</string>
+    <string name="source_rules">Rules engine</string>
+
+    <string name="category_candlestick">Candlestick</string>
+    <string name="category_chart">Chart pattern</string>
+    <string name="category_indicator">Indicator signal</string>
+    <string name="category_advanced">Advanced</string>
+
+    <string name="direction_bullish">bullish</string>
+    <string name="direction_bearish">bearish</string>
+    <string name="direction_neutral">neutral</string>
+
+    <string name="mood_bullish">Bullish</string>
+    <string name="mood_bearish">Bearish</string>
+    <string name="mood_neutral">Neutral</string>
+
+    <string name="alert_kind_price_above">Price rises above</string>
+    <string name="alert_kind_price_below">Price falls below</string>
+    <string name="alert_kind_buy_signal">Score turns Buy (≥ 20)</string>
+    <string name="alert_kind_sell_signal">Score turns Sell (≤ -20)</string>
+    <string name="alert_kind_pattern">A confirmed pattern appears</string>
+
+    <string name="preset_strong_uptrend">Strong uptrend</string>
+    <string name="preset_strong_uptrend_desc">Above the 50- and 200-day averages with a buy score.</string>
+    <string name="preset_oversold">Oversold bounce</string>
+    <string name="preset_oversold_desc">RSI under 35 while the long-term trend is still up.</string>
+    <string name="preset_breakouts">Breakouts</string>
+    <string name="preset_breakouts_desc">Fresh bullish chart patterns or breakouts.</string>
+    <string name="preset_volume_surge">Volume surge</string>
+    <string name="preset_volume_surge_desc">Trading at least twice the usual volume today.</string>
+    <string name="preset_weakest">Weakest</string>
+    <string name="preset_weakest_desc">Sell-rated stocks below their 200-day average.</string>
+
+    <string name="sort_score">Score</string>
+    <string name="sort_change">Today\'s change</string>
+    <string name="sort_value">Value traded</string>
+    <string name="sort_return_3m">3-month return</string>
+    <string name="sort_rsi">RSI</string>
+
+    <string name="pattern_filter_any">Any</string>
+    <string name="pattern_filter_bullish">Has a bullish pattern</string>
+    <string name="pattern_filter_bearish">Has a bearish pattern</string>
+
+    <string name="tag_setup_breakout">Breakout</string>
+    <string name="tag_setup_pullback">Pullback / dip buy</string>
+    <string name="tag_setup_reversal">Reversal pattern</string>
+    <string name="tag_setup_dividend">Dividend play</string>
+    <string name="tag_setup_long_term">Long-term hold</string>
+    <string name="tag_setup_news">News / disclosure</string>
+    <string name="tag_setup_tip">Tip from someone</string>
+    <string name="tag_setup_other">Other</string>
+    <string name="tag_emotion_calm">Calm</string>
+    <string name="tag_emotion_confident">Confident</string>
+    <string name="tag_emotion_excited">Excited</string>
+    <string name="tag_emotion_fomo">FOMO</string>
+    <string name="tag_emotion_fearful">Fearful</string>
+    <string name="tag_emotion_greedy">Greedy</string>
+    <string name="tag_emotion_impatient">Impatient</string>
+    <string name="tag_emotion_unsure">Unsure</string>
+    <string name="tag_mistake_chased">Chased the price</string>
+    <string name="tag_mistake_no_stop">No stop loss</string>
+    <string name="tag_mistake_too_big">Position too big</string>
+    <string name="tag_mistake_ignored_plan">Ignored my plan</string>
+    <string name="tag_mistake_sold_early">Sold too early</string>
+    <string name="tag_mistake_held_loser">Held a loser too long</string>
+    <string name="tag_mistake_averaged_down">Averaged down</string>
+    <string name="tag_mistake_tip">Traded on a tip</string>
+</resources>

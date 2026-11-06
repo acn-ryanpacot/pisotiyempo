@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Filipino. Trading terms Filipino investors normally say in English (RSI, breakout, stop loss) stay in English. -->
+<resources>
+    <string name="stance_strong_buy">Malakas na bili</string>
+    <string name="stance_buy">Bili</string>
+    <string name="stance_hold">Hawakan</string>
+    <string name="stance_reduce">Bawasan</string>
+    <string name="stance_sell">Benta</string>
+
+    <string name="source_claude_haiku">AI · Claude Haiku</string>
+    <string name="source_claude_opus">AI · Claude Opus</string>
+    <string name="source_rules">Rules engine</string>
+
+    <string name="category_candlestick">Candlestick</string>
+    <string name="category_chart">Chart pattern</string>
+    <string name="category_indicator">Senyales ng indicator</string>
+    <string name="category_advanced">Advanced</string>
+
+    <string name="direction_bullish">bullish</string>
+    <string name="direction_bearish">bearish</string>
+    <string name="direction_neutral">neutral</string>
+
+    <string name="mood_bullish">Bullish</string>
+    <string name="mood_bearish">Bearish</string>
+    <string name="mood_neutral">Neutral</string>
+
+    <string name="alert_kind_price_above">Tumaas ang presyo lampas sa</string>
+    <string name="alert_kind_price_below">Bumaba ang presyo sa ilalim ng</string>
+    <string name="alert_kind_buy_signal">Naging Bili ang iskor (≥ 20)</string>
+    <string name="alert_kind_sell_signal">Naging Benta ang iskor (≤ -20)</string>
+    <string name="alert_kind_pattern">May lumabas na kumpirmadong pattern</string>
+
+    <string name="preset_strong_uptrend">Malakas na uptrend</string>
+    <string name="preset_strong_uptrend_desc">Nasa itaas ng 50- at 200-day average at may iskor na pang-bili.</string>
+    <string name="preset_oversold">Oversold na pag-angat</string>
+    <string name="preset_oversold_desc">RSI na mas mababa sa 35 habang paakyat pa rin ang pangmatagalang trend.</string>
+    <string name="preset_breakouts">Breakouts</string>
+    <string name="preset_breakouts_desc">Mga bagong bullish na chart pattern o breakout.</string>
+    <string name="preset_volume_surge">Biglang lakas ng volume</string>
+    <string name="preset_volume_surge_desc">Dalawang beses o higit pa sa karaniwang volume ngayong araw.</string>
+    <string name="preset_weakest">Pinakamahina</string>
+    <string name="preset_weakest_desc">Mga stock na may rating na benta at nasa ilalim ng 200-day average.</string>
+
+    <string name="sort_score">Iskor</string>
+    <string name="sort_change">Galaw ngayong araw</string>
+    <string name="sort_value">Halagang naikalakal</string>
+    <string name="sort_return_3m">Kita sa 3 buwan</string>
+    <string name="sort_rsi">RSI</string>
+
+    <string name="pattern_filter_any">Kahit ano</string>
+    <string name="pattern_filter_bullish">May bullish na pattern</string>
+    <string name="pattern_filter_bearish">May bearish na pattern</string>
+
+    <string name="tag_setup_breakout">Breakout</string>
+    <string name="tag_setup_pullback">Pullback / bili sa pagbaba</string>
+    <string name="tag_setup_reversal">Reversal pattern</string>
+    <string name="tag_setup_dividend">Para sa dibidendo</string>
+    <string name="tag_setup_long_term">Pangmatagalan</string>
+    <string name="tag_setup_news">Balita / disclosure</string>
+    <string name="tag_setup_tip">Tip mula sa iba</string>
+    <string name="tag_setup_other">Iba pa</string>
+    <string name="tag_emotion_calm">Kalmado</string>
+    <string name="tag_emotion_confident">Kumpiyansa</string>
+    <string name="tag_emotion_excited">Excited</string>
+    <string name="tag_emotion_fomo">FOMO</string>
+    <string name="tag_emotion_fearful">Takot</string>
+    <string name="tag_emotion_greedy">Sakim</string>
+    <string name="tag_emotion_impatient">Mainipin</string>
+    <string name="tag_emotion_unsure">Hindi sigurado</string>
+    <string name="tag_mistake_chased">Hinabol ang presyo</string>
+    <string name="tag_mistake_no_stop">Walang stop loss</string>
+    <string name="tag_mistake_too_big">Sobrang laki ng posisyon</string>
+    <string name="tag_mistake_ignored_plan">Hindi sinunod ang plano</string>
+    <string name="tag_mistake_sold_early">Masyadong maagang nagbenta</string>
+    <string name="tag_mistake_held_loser">Matagal hinawakan ang lugi</string>
+    <string name="tag_mistake_averaged_down">Nag-average down</string>
+    <string name="tag_mistake_tip">Nag-trade dahil sa tip</string>
+</resources>
