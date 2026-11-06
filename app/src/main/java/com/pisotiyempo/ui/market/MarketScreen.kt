@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -33,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pisotiyempo.AppContainer
+import com.pisotiyempo.R
 import com.pisotiyempo.data.local.StockEntity
 import com.pisotiyempo.data.remote.ForeignFlowDto
 import com.pisotiyempo.data.repo.MarketStatsCalc
@@ -102,8 +104,8 @@ fun MarketScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues, o
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            SectionCard("Stock screener", trailing = { androidx.compose.material3.Button(onClick = onOpenScreener) { Text("Open") } }) {
-                MutedText("Find uptrends, oversold bounces, breakouts and volume surges among the stocks the app analyzes.")
+            SectionCard(stringResource(R.string.market_screener_title), trailing = { androidx.compose.material3.Button(onClick = onOpenScreener) { Text(stringResource(R.string.market_open)) } }) {
+                MutedText(stringResource(R.string.market_screener_desc))
             }
         }
         item { PseiCard(state) }
@@ -126,17 +128,17 @@ private fun PseiCard(state: MarketState) {
         if (state.psei.size >= 2) {
             PriceChart(bars = state.psei.takeLast(260), lineMode = true, showVolume = false, modifier = Modifier.fillMaxWidth().height(200.dp))
         } else {
-            MutedText("Index history builds up day by day when the primary data source is unavailable.")
+            MutedText(stringResource(R.string.market_psei_history_note))
         }
-        state.source?.let { MutedText("Prices as of ${s?.date ?: "—"} · source: $it") }
+        state.source?.let { MutedText(stringResource(R.string.market_prices_as_of_source, s?.date ?: "—", it)) }
     }
 }
 
 @Composable
 private fun BreadthCard(s: MarketStats?) {
-    SectionCard("Market breadth") {
+    SectionCard(stringResource(R.string.market_breadth)) {
         if (s == null) {
-            MutedText("Available after the first sync.")
+            MutedText(stringResource(R.string.market_available_after_sync))
             return@SectionCard
         }
         val total = (s.advancers + s.decliners + s.unchanged).coerceAtLeast(1)
@@ -147,46 +149,46 @@ private fun BreadthCard(s: MarketStats?) {
             if (s.decliners > 0) Box(Modifier.weight(s.decliners.toFloat()).fillMaxHeight().background(c.loss))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LabeledValue("Advancers", s.advancers.toString(), valueColor = c.gain)
-            LabeledValue("Decliners", s.decliners.toString(), valueColor = c.loss)
-            LabeledValue("Unchanged", s.unchanged.toString())
-            LabeledValue("Value traded", Fmt.compactPeso(s.totalValue))
+            LabeledValue(stringResource(R.string.market_advancers), s.advancers.toString(), valueColor = c.gain)
+            LabeledValue(stringResource(R.string.market_decliners), s.decliners.toString(), valueColor = c.loss)
+            LabeledValue(stringResource(R.string.market_unchanged), s.unchanged.toString())
+            LabeledValue(stringResource(R.string.market_value_traded), Fmt.compactPeso(s.totalValue))
         }
-        MutedText("${"%.0f".format(s.advancers * 100.0 / total)}% of traded issues rose.")
+        MutedText(stringResource(R.string.market_breadth_rose_pct, "%.0f".format(s.advancers * 100.0 / total)))
     }
 }
 
 @Composable
 private fun SectorsCard(sectors: List<SectorMove>) {
-    SectionCard("Sector performance") {
+    SectionCard(stringResource(R.string.market_sector_performance)) {
         if (sectors.isEmpty()) {
-            MutedText("Available after the first sync.")
+            MutedText(stringResource(R.string.market_available_after_sync))
             return@SectionCard
         }
         sectors.forEach { s ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(s.sector, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                MutedText("${s.count} stocks · ${Fmt.compactPeso(s.value)}  ")
+                MutedText(stringResource(R.string.market_sector_count_value, s.count, Fmt.compactPeso(s.value)) + "  ")
                 ChangeText(s.changePct)
             }
         }
-        MutedText("Value-weighted average move of each sector's stocks, computed in the app.")
+        MutedText(stringResource(R.string.market_sector_note))
     }
 }
 
 @Composable
 private fun ForeignFlowCard(flow: ForeignFlowDto?, onOpenStock: (String) -> Unit) {
-    SectionCard("Foreign buying / selling") {
+    SectionCard(stringResource(R.string.market_foreign_flow)) {
         if (flow == null) {
-            MutedText("Not available yet. The PSE publishes foreign flow in reports that can't be redistributed without its consent, so this needs a licensed feed connected to the backend.")
+            MutedText(stringResource(R.string.market_foreign_flow_unavailable))
             return@SectionCard
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LabeledValue("Net", Fmt.compactPeso(flow.netValue), valueColor = changeColor(flow.netValue))
-            LabeledValue("Buying", Fmt.compactPeso(flow.buyValue))
-            LabeledValue("Selling", Fmt.compactPeso(flow.sellValue))
+            LabeledValue(stringResource(R.string.market_net), Fmt.compactPeso(flow.netValue), valueColor = changeColor(flow.netValue))
+            LabeledValue(stringResource(R.string.market_buying), Fmt.compactPeso(flow.buyValue))
+            LabeledValue(stringResource(R.string.market_selling), Fmt.compactPeso(flow.sellValue))
         }
-        MutedText("As of ${flow.date}")
+        MutedText(stringResource(R.string.market_as_of, flow.date))
         val top = flow.bySymbol.sortedByDescending { kotlin.math.abs(it.netValue) }.take(6)
         top.forEach { s ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -201,19 +203,23 @@ private fun ForeignFlowCard(flow: ForeignFlowDto?, onOpenStock: (String) -> Unit
 @Composable
 private fun MoversCard(state: MarketState, onOpenStock: (String) -> Unit) {
     var tab by remember { mutableIntStateOf(0) }
-    val labels = listOf("Gainers", "Losers", "Most active")
-    SectionCard("Top movers") {
+    val labels = listOf(
+        stringResource(R.string.market_gainers),
+        stringResource(R.string.market_losers),
+        stringResource(R.string.market_most_active),
+    )
+    SectionCard(stringResource(R.string.market_top_movers)) {
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
             labels.forEachIndexed { i, label ->
                 SegmentedButton(selected = tab == i, onClick = { tab = i }, shape = SegmentedButtonDefaults.itemShape(i, labels.size)) { Text(label) }
             }
         }
         val rows = when (tab) { 0 -> state.gainers; 1 -> state.losers; else -> state.active }
-        if (rows.isEmpty()) MutedText("Available after the first sync.")
+        if (rows.isEmpty()) MutedText(stringResource(R.string.market_available_after_sync))
         rows.forEachIndexed { i, s ->
             if (i > 0) HorizontalDivider()
             StockRow(s.symbol, s.name, s.close, s.changePct, subtitle = "${s.name} · ${Fmt.compactPeso(s.close * s.volume)}", onClick = { onOpenStock(s.symbol) })
         }
-        if (tab != 2) MutedText("Only stocks with at least ${Fmt.compactPeso(MarketStatsCalc.LIQUID_VALUE)} traded are ranked.")
+        if (tab != 2) MutedText(stringResource(R.string.market_liquid_note, Fmt.compactPeso(MarketStatsCalc.LIQUID_VALUE)))
     }
 }

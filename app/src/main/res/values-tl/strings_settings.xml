@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Filipino. Settings, backup, app lock and first-run disclaimer screens. Trading and tech terms Filipino users
+     normally say in English (stock, broker, portfolio, sync, backup, CSV, API key, fingerprint, PIN) stay in English. -->
+<resources>
+    <!-- SettingsScreen -->
+    <string name="settings_title">Mga Setting</string>
+    <string name="settings_back">Bumalik</string>
+    <string name="settings_backend_status">Status ng backend</string>
+    <string name="settings_check_again">Suriin ulit</string>
+    <string name="settings_checking">Sinusuri…</string>
+    <string name="settings_backend">Backend</string>
+    <string name="settings_not_reachable">Hindi makonekta</string>
+    <string name="settings_app_key_mismatch">Hindi tugma ang app key sa APP_KEY secret ng backend.</string>
+    <string name="settings_http_error">HTTP %1$d: %2$s</string>
+    <string name="settings_offline_reason">%1$s. Ginagamit ng app ang mga presyong naka-save sa phone na ito at ang phisix feed.</string>
+    <string name="settings_no_connection">Walang koneksyon</string>
+    <string name="settings_server">Server: %1$s</string>
+    <string name="settings_connected">Konektado</string>
+    <string name="settings_market_data">Market data</string>
+    <string name="settings_eodhd_licensed">EODHD (may lisensya)</string>
+    <string name="settings_free_sources_only">Libreng sources lang</string>
+    <string name="settings_ai_analysis">AI analysis</string>
+    <string name="settings_claude_connected">Konektado ang Claude</string>
+    <string name="settings_ai_off">Naka-off: rules engine</string>
+    <string name="settings_pse_today">PSE ngayon</string>
+    <string name="settings_market_closed">Sarado (%1$s)</string>
+    <string name="settings_trading_day">May trading</string>
+
+    <string name="settings_premium_title">Piso Tiyempo Premium</string>
+    <string name="settings_status">Status</string>
+    <string name="settings_active">Aktibo</string>
+    <string name="settings_premium_thanks">Salamat! Bukas na ang Claude analysis, mga buod ng disclosure at mga alert.</string>
+    <string name="settings_manage_subscription">Pamahalaan ang subscription</string>
+    <string name="settings_premium_pitch">I-unlock ang stock analysis na isinulat ni Claude at mga AI na buod ng disclosure ng mga kumpanya. Puwedeng i-cancel anumang oras sa Google Play.</string>
+    <string name="settings_subscribe">Mag-subscribe</string>
+    <string name="settings_subscribe_price">Mag-subscribe · %1$s</string>
+    <string name="settings_checking_play">Sinusuri ang Google Play…</string>
+
+    <string name="settings_eodhd_title">Sariling EODHD key (opsyonal)</string>
+    <string name="settings_eodhd_body">May EODHD subscription ka? Idagdag ang iyong key at direktang kukuha ang app ng mga presyo gamit ito mula sa phone na ito, sa ilalim ng sarili mong data licence. Naka-encrypt itong nakatago sa device na ito at hindi kailanman ipinapadala sa aming mga server.</string>
+    <string name="settings_your_key">Iyong key</string>
+    <string name="settings_saved">Naka-save</string>
+    <string name="settings_key_removed">Inalis na ang key.</string>
+    <string name="settings_remove_key">Alisin ang key</string>
+    <string name="settings_eodhd_key_label">EODHD API key</string>
+    <string name="settings_checking_key">Sinusuri ang key…</string>
+    <string name="settings_key_saved">Na-save ang key. Gagamitin ito simula sa susunod na sync.</string>
+    <string name="settings_key_invalid">Walang naibalik na PSE data ang key na iyan. Suriin ito at ang iyong EODHD plan.</string>
+    <string name="settings_check_and_save">Suriin at i-save</string>
+
+    <string name="settings_practice_account">Practice account</string>
+    <string name="settings_starting_cash">Panimulang cash (₱)</string>
+    <string name="settings_practice_cash_note">Kapag binago ito, agad na magbabago ang cash ng practice account; mananatili ang iyong mga practice trade.</string>
+    <string name="settings_save">I-save</string>
+
+    <string name="settings_never_synced">Hindi pa nagsi-sync.</string>
+    <string name="settings_last_sync">Huling sync %1$s\nMga presyo noong %2$s mula sa %3$s\n%4$s</string>
+    <string name="settings_data_sources">Mga source, ayon sa pagkakasunod: EODHD (may lisensya), sunod ang PSE Edge at ang phisix community feed, saka ang data na naka-save sa phone na ito. Kusang nagsi-sync ang app tuwing gabi mula Lunes hanggang Biyernes.</string>
+    <string name="settings_sync_now">Mag-sync ngayon</string>
+
+    <string name="settings_use_claude">Gamitin ang Claude sa analysis</string>
+    <string name="settings_ai_body">Kapag naka-on: ang mga stock analysis at buod ng disclosure ay isinusulat ng Claude Haiku, at ang daily market brief ng Claude Opus. Ang mga na-compute na technical indicator lang ang ipinapadala; hindi kailanman lumalabas sa phone na ito ang iyong portfolio at mga trade. Kapag naka-off, o kapag hindi available ang AI, ang built-in na rules engine ang gagawa ng analysis.</string>
+
+    <string name="settings_language_title">Language / Wika</string>
+    <string name="settings_app_screens">Mga screen ng app</string>
+    <string name="settings_lang_english">English</string>
+    <string name="settings_lang_filipino">Filipino</string>
+    <string name="settings_lang_taglish">Taglish</string>
+    <string name="settings_analysis_ai_text">Analysis at AI na text</string>
+    <string name="settings_language_note">Nananatili sa English ang mga pangalan ng pattern at mga termino ng indicator (RSI, MACD, support), dahil ito ang gamit sa lahat ng trading platform.</string>
+
+    <string name="settings_app_lock">App lock</string>
+    <string name="settings_require_lock">Humingi ng fingerprint o PIN</string>
+    <string name="settings_app_lock_body">Hihingin ang iyong fingerprint, mukha o screen-lock PIN tuwing bubuksan mo ang app, at muli kapag lumipas ang isang minutong wala ka sa app. Naka-encrypt din ang iyong data sa phone.</string>
+
+    <string name="settings_crash_reports">Mga crash report</string>
+    <string name="settings_send_crash_reports">Magpadala ng crash report</string>
+    <string name="settings_crash_body">Mga anonymous na teknikal na detalye kapag nag-crash ang app (modelo ng device, bersyon ng Android, ang error). Walang portfolio o personal na data.</string>
+
+    <string name="settings_position_sizing">Laki ng posisyon</string>
+    <string name="settings_trading_capital">Puhunan sa trading (₱)</string>
+    <string name="settings_risk_per_trade" formatted="false">Risk bawat trade (% ng puhunan)</string>
+    <string name="settings_risk_note" formatted="false">Karamihan ng trader ay nagri-risk ng 0.5% hanggang 2% bawat trade. Ginagamit ito sa trade plan ng bawat stock.</string>
+
+    <string name="settings_broker_fees">Mga fee ng broker</string>
+    <string name="settings_commission" formatted="false">Komisyon (%)</string>
+    <string name="settings_min_commission">Minimum na komisyon (₱)</string>
+    <string name="settings_sales_tax" formatted="false">Stock transaction tax sa pagbenta (%)</string>
+    <string name="settings_fees_defaults" formatted="false">Default: 0.25% komisyon (₱20 minimum) + 12% VAT, 0.005% PSE fee, 0.01% SCCP fee, 0.1% transaction tax sa pagbenta. Tingnan ang singil ng iyong broker.</string>
+
+    <string name="settings_about">Tungkol sa app</string>
+    <string name="settings_version">Piso Tiyempo %1$s</string>
+    <string name="settings_tagline">Buy right. Sell right. Tamang tiyempo.</string>
+    <string name="settings_about_disclaimer">Ang Piso Tiyempo ay isang educational tool, hindi broker o lisensyadong investment adviser, at walang anuman dito na rekomendasyong bumili o magbenta. Ang mga technical signal ay mga probabilidad at puwedeng mali. Maaaring delayed o may mali ang market data. Laging gumawa ng sariling pagsasaliksik at isaalang-alang ang pagkonsulta sa isang lisensyadong propesyonal.</string>
+    <string name="settings_credits">Charts mula sa TradingView Lightweight Charts (Apache 2.0). Mga disclosure mula sa PSE Edge. AI mula sa Anthropic Claude.</string>
+
+    <!-- BackupCard -->
+    <string name="backup_title">Backup, export at import</string>
+    <string name="backup_intro">Sa phone na ito lang nakatago ang iyong data. Mag-export ng mga CSV file para i-backup ito o buksan sa spreadsheet.</string>
+    <string name="backup_export_real">I-export ang mga trade ko</string>
+    <string name="backup_export_practice">I-export ang practice trades</string>
+    <string name="backup_export_journal">I-export ang journal</string>
+    <string name="backup_exported_real">Na-export ang %1$d trade mo.</string>
+    <string name="backup_exported_practice">Na-export ang %1$d practice trade.</string>
+    <string name="backup_exported_journal">Na-export ang %1$d journal entry.</string>
+    <string name="backup_export_failed">Hindi na-export: %1$s</string>
+    <string name="backup_read_failed">Hindi mabasa ang file: %1$s</string>
+    <string name="backup_import_trades">Mag-import ng trades</string>
+    <string name="backup_import_journal">Mag-import ng journal</string>
+    <string name="backup_trade_format_help">Kailangan ng trade file ng mga column para sa petsa, buy/sell, symbol, shares at presyo (opsyonal ang fees). Gumagana ang karamihan ng CSV export ng broker; kung hindi gumana ang sa iyo, i-save ito gamit ang header na ito: %1$s</string>
+    <string name="backup_import_confirm_title">I-import?</string>
+    <string name="backup_import">I-import</string>
+    <string name="backup_cancel">Kanselahin</string>
+    <string name="backup_imported_trades">Na-import ang %1$d trade.</string>
+    <string name="backup_imported_journal">Na-import ang %1$d journal entry.</string>
+    <string name="backup_error_empty_file">walang laman ang file</string>
+    <string name="backup_error_cant_write">hindi ma-save ang file</string>
+    <string name="backup_trades_to_add">%1$d bagong trade ang idadagdag sa iyong portfolio.</string>
+    <string name="backup_trades_skipped">Lalaktawan ang %1$d na naitala na.</string>
+    <string name="backup_fees_estimated">Wala sa file ang fees ng %1$d trade, kaya tinantya ang mga ito mula sa iyong fee settings.</string>
+    <string name="backup_rows_unreadable">Hindi mabasa ang %1$d row:</string>
+    <string name="backup_journal_to_add">%1$d journal entry ang idadagdag.</string>
+
+    <!-- AppLock / LockScreen -->
+    <string name="lock_none_enrolled">Mag-set up muna ng fingerprint o screen lock sa settings ng iyong phone.</string>
+    <string name="lock_no_hardware">Hindi sinusuportahan ng phone na ito ang app lock.</string>
+    <string name="lock_unavailable">Hindi available ang app lock sa phone na ito ngayon.</string>
+    <string name="lock_prompt_title">I-unlock ang Piso Tiyempo</string>
+    <string name="lock_prompt_subtitle">Protektado ang iyong portfolio</string>
+    <string name="lock_app_name">Piso Tiyempo</string>
+    <string name="lock_locked_message">Naka-lock para protektahan ang iyong portfolio at journal.</string>
+    <string name="lock_unlock">I-unlock</string>
+
+    <!-- DisclaimerScreen -->
+    <string name="disclaimer_app_name">Piso Tiyempo</string>
+    <string name="disclaimer_tagline">Buy right. Sell right. Tamang tiyempo.</string>
+    <string name="disclaimer_before_you_start">Bago ka magsimula</string>
+    <string name="disclaimer_point_not_adviser">Ang Piso Tiyempo ay isang educational tool. Hindi ito broker, at hindi ito investment adviser na lisensyado ng Philippine SEC.</string>
+    <string name="disclaimer_point_probabilities">Ang mga ideya sa pagbili at pagbenta ay galing sa technical analysis ng mga nakaraang presyo. Mga probabilidad ang mga ito, hindi hula, at madalas silang mali.</string>
+    <string name="disclaimer_point_data">Ang market data ay galing sa third-party at community sources at maaaring delayed, kulang o hindi tumpak.</string>
+    <string name="disclaimer_point_ai">Maaaring magkamali ang analysis na isinulat ng AI (ng Claude ng Anthropic). Laging suriin mismo ang mga numero.</string>
+    <string name="disclaimer_point_risk">Mag-invest lang ng perang kaya mong mawala. Isaalang-alang ang pagkonsulta sa isang lisensyadong propesyonal bago magdesisyon.</string>
+    <string name="disclaimer_point_privacy">Sa phone na ito lang nakatago ang iyong portfolio at mga trade. Ang mga na-compute na indicator lang ng isang stock ang ipinapadala para sa AI analysis.</string>
+    <string name="disclaimer_agree">Naiintindihan ko, at ako ang responsable sa sarili kong mga desisyon sa pag-invest.</string>
+    <string name="disclaimer_continue">Magpatuloy</string>
+</resources>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Portfolio tab: real portfolio, practice account and trading journal. Filipino versions are in values-tl. -->
+<resources>
+    <!-- Tabs (PortfolioTabs.kt) -->
+    <string name="portfolio_tab_mine">My portfolio</string>
+    <string name="portfolio_tab_practice">Practice</string>
+    <string name="portfolio_tab_journal">Journal</string>
+
+    <!-- Real portfolio (PortfolioScreen.kt) -->
+    <string name="portfolio_side_buy">BUY</string>
+    <string name="portfolio_side_sell">SELL</string>
+    <string name="portfolio_title">Portfolio</string>
+    <string name="portfolio_cost_basis">Cost basis</string>
+    <string name="portfolio_unrealized">Unrealized</string>
+    <string name="portfolio_today">Today</string>
+    <string name="portfolio_realized">Realized</string>
+    <string name="portfolio_dividends_net" formatted="false">Dividends (net of 10% tax)</string>
+    <string name="portfolio_average_cost_note">Average-cost method; buy fees are included in cost, sell fees and taxes in realized profit.</string>
+    <string name="portfolio_diversification_check">Diversification check</string>
+    <string name="portfolio_sector_mix">Sector mix</string>
+    <string name="portfolio_holdings">Holdings</string>
+    <string name="portfolio_holding_line">%1$s sh · avg %2$s · %3$s</string>
+    <string name="portfolio_upcoming_dividends">Upcoming dividends</string>
+    <string name="portfolio_dividend_qualify">Own it before %1$s to qualify · pays %2$s</string>
+    <string name="portfolio_trade_history">Trade history</string>
+    <string name="portfolio_no_trades">No trades yet. Tap “Add trade” to record a buy or sell from your broker.</string>
+    <string name="portfolio_trade_line">%1$s · %2$s @ %3$s · fees %4$s</string>
+    <string name="portfolio_delete_trade">Delete trade</string>
+    <string name="portfolio_add_trade">Add trade</string>
+    <string name="portfolio_record_trade">Record trade</string>
+    <string name="portfolio_symbol">Symbol</string>
+    <string name="portfolio_shares">Shares</string>
+    <string name="portfolio_price">Price (₱)</string>
+    <string name="portfolio_date">Date (YYYY-MM-DD)</string>
+    <string name="portfolio_fees_and_taxes">Fees and taxes (₱)</string>
+    <string name="portfolio_fees_auto">auto</string>
+    <string name="portfolio_odd_lot">Board lot at this price is %1$s shares; %2$s is an odd lot.</string>
+    <string name="portfolio_estimated_fees">Estimated fees %1$s with your fee settings. Leave blank to use this.</string>
+    <string name="portfolio_error_symbol">Enter a valid PSE symbol.</string>
+    <string name="portfolio_error_shares">Enter the number of shares.</string>
+    <string name="portfolio_error_price">Enter the price.</string>
+    <string name="portfolio_error_date">Enter a valid date, not in the future.</string>
+    <string name="portfolio_error_fees">Enter the fees.</string>
+    <string name="portfolio_save">Save</string>
+    <string name="portfolio_cancel">Cancel</string>
+
+    <!-- Practice account (PracticeTab.kt) -->
+    <string name="practice_account">Practice account</string>
+    <string name="practice_cash">Cash</string>
+    <string name="practice_invested">Invested</string>
+    <string name="practice_return">Return</string>
+    <string name="practice_virtual_money_note">Virtual money. Orders fill at the latest closing price, with real PSE fees, taxes and board lots.</string>
+    <string name="practice_reset_account">Reset practice account</string>
+    <string name="practice_holdings">Practice holdings</string>
+    <string name="practice_holding_line">%1$s sh · avg %2$s</string>
+    <string name="practice_trade_button">Trade</string>
+    <string name="practice_results">Practice results</string>
+    <string name="practice_closed_trades">Closed trades</string>
+    <string name="practice_win_rate">Win rate</string>
+    <string name="practice_realized">Realized</string>
+    <string name="practice_orders">Practice orders</string>
+    <string name="practice_no_trades">No practice trades yet. Tap “Practice trade”, or use the button on any stock\'s trade plan.</string>
+    <string name="practice_trade">Practice trade</string>
+    <string name="practice_reset_title">Reset practice account?</string>
+    <string name="practice_reset_body">This deletes all practice trades and restores %1$s in cash. Your real portfolio is not affected.</string>
+    <string name="practice_reset">Reset</string>
+    <string name="practice_no_price">No price for %1$s yet. Check the symbol, or sync first.</string>
+    <string name="practice_fills_at">Fills at the last close %1$s (%2$s). Board lot: %3$s shares.</string>
+    <string name="practice_cash_available">Practice cash available: %1$s</string>
+    <string name="practice_you_hold">you hold %1$s</string>
+    <string name="practice_preview_cost">Cost: %1$s including %2$s fees</string>
+    <string name="practice_preview_receive">You receive: %1$s including %2$s fees</string>
+    <string name="practice_error_check_order">Check the order.</string>
+    <string name="practice_place_order">Place order</string>
+
+    <!-- Trading journal (JournalTab.kt) -->
+    <string name="journal_ai_coaching">AI coaching (Claude)</string>
+    <string name="journal_reading">Reading your journal…</string>
+    <string name="journal_coaching_intro">Get personal coaching on your habits, based on your notes and closed trades. One review a day.</string>
+    <string name="journal_get_coaching">Get AI coaching</string>
+    <string name="journal_entries">Entries</string>
+    <string name="journal_empty">Write a note each time you buy or sell: why, how you felt, and what you\'d do differently. Patterns show up after a few weeks.</string>
+    <string name="journal_entry_felt">%1$s · felt %2$s</string>
+    <string name="journal_entry_plan_followed">plan followed %1$d/5</string>
+    <string name="journal_delete_entry">Delete entry</string>
+    <string name="journal_mistakes_line">Mistakes: %1$s</string>
+    <string name="journal_lesson_line">Lesson: %1$s</string>
+    <string name="journal_new_entry">New entry</string>
+    <string name="journal_consent_title">Send your journal to Claude?</string>
+    <string name="journal_consent_body" formatted="false">Your last 40 journal notes (including what you wrote) and your closed-trade results (symbol, date, % gain or loss) will be sent to our server and to Anthropic\'s Claude to write your review. Share quantities and peso amounts are not sent.</string>
+    <string name="journal_send">Send</string>
+    <string name="journal_cancel">Cancel</string>
+    <string name="journal_habits">Your trading habits</string>
+    <string name="journal_closed_trades">Closed trades</string>
+    <string name="journal_win_rate">Win rate</string>
+    <string name="journal_avg_win">Avg win</string>
+    <string name="journal_avg_loss">Avg loss</string>
+    <string name="journal_by_setup">By setup</string>
+    <string name="journal_by_emotion">By emotion</string>
+    <string name="journal_habits_note">Calculated on your phone from real (not practice) trades and your notes.</string>
+    <string name="journal_group_won">%1$d%% won</string>
+    <string name="journal_review_strengths">What\'s working</string>
+    <string name="journal_review_mistakes">Recurring mistakes</string>
+    <string name="journal_review_suggestions">Try this</string>
+    <string name="journal_review_focus">Focus next: %1$s</string>
+    <string name="journal_review_footer">Written by Claude from your journal. Coaching, not investment advice.</string>
+    <string name="journal_entry_title">Journal entry</string>
+    <string name="journal_symbol">Symbol</string>
+    <string name="journal_date">Date</string>
+    <string name="journal_setup">Setup</string>
+    <string name="journal_feel">How did you feel?</string>
+    <string name="journal_mistakes_if_any">Mistakes (if any)</string>
+    <string name="journal_plan_rating">How well did you follow your plan?</string>
+    <string name="journal_reason">Why did you take this trade?</string>
+    <string name="journal_lesson">Lesson or what you\'d do differently</string>
+    <string name="journal_error_symbol">Enter a valid PSE symbol.</string>
+    <string name="journal_error_date">Enter the date as YYYY-MM-DD.</string>
+    <string name="journal_save">Save</string>
+</resources>

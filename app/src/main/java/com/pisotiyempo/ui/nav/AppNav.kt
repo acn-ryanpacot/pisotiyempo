@@ -1,5 +1,6 @@
 package com.pisotiyempo.ui.nav
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
@@ -23,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -32,6 +34,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.pisotiyempo.R
 import com.pisotiyempo.ui.common.MutedText
 import com.pisotiyempo.ui.dashboard.DashboardScreen
 import com.pisotiyempo.ui.market.MarketScreen
@@ -43,12 +46,12 @@ import com.pisotiyempo.ui.stock.StockDetailScreen
 import com.pisotiyempo.ui.tools.ToolsScreen
 import com.pisotiyempo.ui.watchlist.WatchlistScreen
 
-private enum class Tab(val route: String, val label: String, val icon: ImageVector) {
-    DASHBOARD("dashboard", "Home", Icons.Filled.Dashboard),
-    MARKET("market", "Market", Icons.Filled.ShowChart),
-    PORTFOLIO("portfolio", "Portfolio", Icons.Filled.AccountBalanceWallet),
-    WATCHLIST("watchlist", "Watchlist", Icons.Filled.Star),
-    TOOLS("tools", "Tools", Icons.Filled.Build),
+private enum class Tab(val route: String, @StringRes val label: Int, val icon: ImageVector) {
+    DASHBOARD("dashboard", R.string.nav_home, Icons.Filled.Dashboard),
+    MARKET("market", R.string.nav_market, Icons.Filled.ShowChart),
+    PORTFOLIO("portfolio", R.string.nav_portfolio, Icons.Filled.AccountBalanceWallet),
+    WATCHLIST("watchlist", R.string.nav_watchlist, Icons.Filled.Star),
+    TOOLS("tools", R.string.nav_tools, Icons.Filled.Build),
 }
 
 @Composable
@@ -87,13 +90,13 @@ private fun TabsHost(rootNav: NavHostController, openStock: (String) -> Unit) {
             TopAppBar(
                 title = {
                     Column {
-                        Text("Piso Tiyempo", fontWeight = FontWeight.Bold)
-                        MutedText(Tab.entries.firstOrNull { it.route == current }?.label ?: "")
+                        Text(stringResource(R.string.app_name), fontWeight = FontWeight.Bold)
+                        MutedText(Tab.entries.firstOrNull { it.route == current }?.let { stringResource(it.label) } ?: "")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { rootNav.navigate("search") }) { Icon(Icons.Filled.Search, "Search stocks") }
-                    IconButton(onClick = { rootNav.navigate("settings") }) { Icon(Icons.Filled.Settings, "Settings") }
+                    IconButton(onClick = { rootNav.navigate("search") }) { Icon(Icons.Filled.Search, stringResource(R.string.nav_search_stocks)) }
+                    IconButton(onClick = { rootNav.navigate("settings") }) { Icon(Icons.Filled.Settings, stringResource(R.string.nav_settings)) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
@@ -111,7 +114,7 @@ private fun TabsHost(rootNav: NavHostController, openStock: (String) -> Unit) {
                             }
                         },
                         icon = { Icon(tab.icon, null) },
-                        label = { Text(tab.label) },
+                        label = { Text(stringResource(tab.label)) },
                     )
                 }
             }

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Main tabs: dashboard, market, watchlist/alerts, tools, navigation, search and shared components. -->
+<resources>
+    <!-- Shared -->
+    <string name="common_disclaimer_short">For education only, not investment advice. Piso Tiyempo is not a licensed broker or investment adviser. Data may be delayed or inaccurate.</string>
+    <string name="common_save">Save</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_back">Back</string>
+    <string name="common_price_peso">Price (₱)</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_market">Market</string>
+    <string name="nav_portfolio">Portfolio</string>
+    <string name="nav_watchlist">Watchlist</string>
+    <string name="nav_tools">Tools</string>
+    <string name="nav_search_stocks">Search stocks</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_top_buys">Top 5 buy ideas</string>
+    <string name="dashboard_no_buys">No liquid stock scores 20 or higher today. Sitting out is a position too.</string>
+    <string name="dashboard_waiting_first_sync">Waiting for the first sync…</string>
+    <string name="dashboard_top_sells">Top 5 sell signals</string>
+    <string name="dashboard_no_sells">Nothing you own or watch is flashing a sell. Add holdings or a watchlist to get personal sell signals.</string>
+    <string name="dashboard_tag_you_own">You own</string>
+    <string name="dashboard_tag_watchlist">Watchlist</string>
+    <string name="dashboard_tag_avoid">Avoid</string>
+    <string name="dashboard_closed_weekend">PSE is closed for the weekend.</string>
+    <string name="dashboard_closed_today">PSE is closed today: %1$s.</string>
+    <string name="dashboard_prices_as_of">Prices as of %1$s · %2$s</string>
+    <string name="dashboard_not_synced">Not synced yet</string>
+    <string name="dashboard_sync_now">Sync now</string>
+    <string name="dashboard_portfolio_value">Portfolio value</string>
+    <string name="dashboard_portfolio_empty">Add your trades in the Portfolio tab to track value, profit and dividends.</string>
+    <string name="dashboard_today">Today</string>
+    <string name="dashboard_unrealized">Unrealized</string>
+    <string name="dashboard_realized">Realized</string>
+    <string name="dashboard_dividends_net">Dividends (net)</string>
+    <string name="dashboard_holdings">Holdings</string>
+    <string name="dashboard_market_brief">Market brief</string>
+    <string name="dashboard_brief_empty">The daily brief appears after the first sync.</string>
+    <string name="dashboard_watch_next_session">Watch next session</string>
+    <string name="dashboard_reasons_by_claude">Reasons written by Claude from the engine\'s signals.</string>
+
+    <!-- Market -->
+    <string name="market_screener_title">Stock screener</string>
+    <string name="market_open">Open</string>
+    <string name="market_screener_desc">Find uptrends, oversold bounces, breakouts and volume surges among the stocks the app analyzes.</string>
+    <string name="market_psei_history_note">Index history builds up day by day when the primary data source is unavailable.</string>
+    <string name="market_prices_as_of_source">Prices as of %1$s · source: %2$s</string>
+    <string name="market_breadth">Market breadth</string>
+    <string name="market_available_after_sync">Available after the first sync.</string>
+    <string name="market_advancers">Advancers</string>
+    <string name="market_decliners">Decliners</string>
+    <string name="market_unchanged">Unchanged</string>
+    <string name="market_value_traded">Value traded</string>
+    <string name="market_breadth_rose_pct">%1$s%% of traded issues rose.</string>
+    <string name="market_sector_performance">Sector performance</string>
+    <string name="market_sector_count_value">%1$d stocks · %2$s</string>
+    <string name="market_sector_note">Value-weighted average move of each sector\'s stocks, computed in the app.</string>
+    <string name="market_foreign_flow">Foreign buying / selling</string>
+    <string name="market_foreign_flow_unavailable">Not available yet. The PSE publishes foreign flow in reports that can\'t be redistributed without its consent, so this needs a licensed feed connected to the backend.</string>
+    <string name="market_net">Net</string>
+    <string name="market_buying">Buying</string>
+    <string name="market_selling">Selling</string>
+    <string name="market_as_of">As of %1$s</string>
+    <string name="market_gainers">Gainers</string>
+    <string name="market_losers">Losers</string>
+    <string name="market_most_active">Most active</string>
+    <string name="market_top_movers">Top movers</string>
+    <string name="market_liquid_note">Only stocks with at least %1$s traded are ranked.</string>
+
+    <!-- Watchlist / disclosures -->
+    <string name="watchlist_tab_watchlist">Watchlist</string>
+    <string name="watchlist_tab_alerts">Alerts</string>
+    <string name="watchlist_tab_disclosures">Disclosures</string>
+    <string name="watchlist_empty">Tap the star on any stock to add it here. Search from the top bar.</string>
+    <string name="watchlist_remove">Remove</string>
+    <string name="watchlist_disclosures_empty">Disclosures for your holdings and watchlist appear here after a sync.</string>
+
+    <!-- Alerts -->
+    <string name="alerts_empty">No alerts yet. Open a stock and tap the bell to add one. Alerts are checked after each daily sync.</string>
+    <string name="alerts_last_fired">Last fired %1$s</string>
+    <string name="alerts_delete">Delete alert</string>
+    <string name="alerts_dialog_title">Alert for %1$s</string>
+    <string name="alerts_checked_note">Checked against closing prices after each daily sync.</string>
+    <string name="alerts_enter_price">Enter a price.</string>
+
+    <!-- Tools -->
+    <string name="tools_fee_calc_title">Fee and break-even calculator</string>
+    <string name="tools_buy">Buy</string>
+    <string name="tools_sell">Sell</string>
+    <string name="tools_shares">Shares</string>
+    <string name="tools_enter_shares_price">Enter shares and price.</string>
+    <string name="tools_odd_lot">Board lot at ₱%1$s is %2$d shares; this is an odd lot.</string>
+    <string name="tools_break_even_price">Break-even sell price: %1$s (%2$s)</string>
+    <string name="tools_break_even_note">The lowest valid tick where selling covers the buy, all fees and the sales tax.</string>
+    <string name="tools_gross_amount">Gross amount</string>
+    <string name="tools_broker_commission">Broker commission</string>
+    <string name="tools_vat_on_commission" formatted="false">VAT on commission (12%)</string>
+    <string name="tools_pse_fee">PSE transaction fee</string>
+    <string name="tools_sccp_fee">SCCP fee</string>
+    <string name="tools_sales_tax">Stock transaction tax</string>
+    <string name="tools_you_receive">You receive</string>
+    <string name="tools_total_cost">Total cost</string>
+    <string name="tools_total_fees">Total fees %1$s (%2$s of gross)</string>
+    <string name="tools_position_size_title">Position size calculator</string>
+    <string name="tools_capital">Capital (₱)</string>
+    <string name="tools_risk_per_trade" formatted="false">Risk per trade (%)</string>
+    <string name="tools_entry">Entry (₱)</string>
+    <string name="tools_stop_loss">Stop loss (₱)</string>
+    <string name="tools_enter_position_inputs">Enter capital, risk, entry and stop.</string>
+    <string name="tools_stop_below_entry">The stop must be below the entry price.</string>
+    <string name="tools_one_lot_too_big">One board lot (%1$d shares) costs %2$s: more than this risk budget or capital allows.</string>
+    <string name="tools_board_lots">Board lots</string>
+    <string name="tools_cost_with_fees">Cost with fees</string>
+    <string name="tools_loss_if_stopped">Loss if stopped out ≈ %1$s plus fees.</string>
+    <string name="tools_capped_by_capital">Capped by your capital.</string>
+    <string name="tools_board_lot_title">Board lot and tick size</string>
+    <string name="tools_board_lot_hint">Enter a price to see the minimum order size and price step.</string>
+    <string name="tools_board_lot">Board lot</string>
+    <string name="tools_n_shares">%1$s shares</string>
+    <string name="tools_tick_size">Tick size</string>
+    <string name="tools_min_buy">Min. buy</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">Symbol or company name</string>
+    <string name="search_no_matches">No matches. Stocks appear after the first sync.</string>
+</resources>

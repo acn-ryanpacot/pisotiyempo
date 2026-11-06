@@ -13,6 +13,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.pisotiyempo.R
 import com.pisotiyempo.ui.journal.JournalTab
 
 /** Portfolio tab: the real portfolio, the practice account and the trading journal. */
@@ -21,7 +23,11 @@ fun PortfolioScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
     var tab by rememberSaveable { mutableIntStateOf(0) }
     Column(Modifier.fillMaxSize().padding(top = contentPadding.calculateTopPadding())) {
         TabRow(selectedTabIndex = tab) {
-            listOf("My portfolio", "Practice", "Journal").forEachIndexed { i, label ->
+            listOf(
+                stringResource(R.string.portfolio_tab_mine),
+                stringResource(R.string.portfolio_tab_practice),
+                stringResource(R.string.portfolio_tab_journal),
+            ).forEachIndexed { i, label ->
                 Tab(selected = tab == i, onClick = { tab = i }, text = { Text(label) })
             }
         }

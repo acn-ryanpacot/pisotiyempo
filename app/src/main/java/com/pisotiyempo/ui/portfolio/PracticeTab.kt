@@ -33,11 +33,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pisotiyempo.R
 import com.pisotiyempo.data.local.StockEntity
 import com.pisotiyempo.data.local.TradeEntity
 import com.pisotiyempo.data.repo.MANILA
@@ -75,31 +77,31 @@ internal fun PracticeTab(onOpenStock: (String) -> Unit, contentPadding: PaddingV
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                SectionCard("Practice account") {
+                SectionCard(stringResource(R.string.practice_account)) {
                     Text(Fmt.peso(total), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        LabeledValue("Cash", Fmt.peso(cash))
-                        LabeledValue("Invested", Fmt.peso(s?.marketValue ?: 0.0))
-                        LabeledValue("Return", Fmt.pct((total / start - 1) * 100), valueColor = changeColor(total - start))
+                        LabeledValue(stringResource(R.string.practice_cash), Fmt.peso(cash))
+                        LabeledValue(stringResource(R.string.practice_invested), Fmt.peso(s?.marketValue ?: 0.0))
+                        LabeledValue(stringResource(R.string.practice_return), Fmt.pct((total / start - 1) * 100), valueColor = changeColor(total - start))
                     }
-                    MutedText("Virtual money. Orders fill at the latest closing price, with real PSE fees, taxes and board lots.")
-                    TextButton(onClick = { confirmReset = true }) { Text("Reset practice account") }
+                    MutedText(stringResource(R.string.practice_virtual_money_note))
+                    TextButton(onClick = { confirmReset = true }) { Text(stringResource(R.string.practice_reset_account)) }
                 }
             }
             if (s != null && s.holdings.isNotEmpty()) {
                 item {
-                    SectionCard("Practice holdings") {
+                    SectionCard(stringResource(R.string.practice_holdings)) {
                         s.holdings.forEachIndexed { i, h ->
                             if (i > 0) HorizontalDivider()
                             Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
                                     TextButton(onClick = { onOpenStock(h.symbol) }, contentPadding = PaddingValues(0.dp)) { Text(h.symbol, fontWeight = FontWeight.Bold) }
-                                    MutedText("${Fmt.shares(h.shares)} sh · avg ${Fmt.peso(h.avgCost)}")
+                                    MutedText(stringResource(R.string.practice_holding_line, Fmt.shares(h.shares), Fmt.peso(h.avgCost)))
                                 }
                                 Column(horizontalAlignment = Alignment.End) {
                                     Text(Fmt.peso(h.marketValue))
                                     Text("${Fmt.signedPeso(h.unrealizedPnl)} (${Fmt.pct(h.unrealizedPct)})", color = changeColor(h.unrealizedPnl), style = MaterialTheme.typography.bodySmall)
-                                    TextButton(onClick = { ordering = h.symbol }) { Text("Trade") }
+                                    TextButton(onClick = { ordering = h.symbol }) { Text(stringResource(R.string.practice_trade_button)) }
                                 }
                             }
                         }
@@ -109,22 +111,22 @@ internal fun PracticeTab(onOpenStock: (String) -> Unit, contentPadding: PaddingV
             if (s != null && s.closedTrades.isNotEmpty()) {
                 item {
                     val wins = s.closedTrades.count { it.pnl > 0 }
-                    SectionCard("Practice results") {
+                    SectionCard(stringResource(R.string.practice_results)) {
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            LabeledValue("Closed trades", s.closedTrades.size.toString())
-                            LabeledValue("Win rate", Fmt.pct(wins * 100.0 / s.closedTrades.size, signed = false))
-                            LabeledValue("Realized", Fmt.signedPeso(s.realizedPnl), valueColor = changeColor(s.realizedPnl))
+                            LabeledValue(stringResource(R.string.practice_closed_trades), s.closedTrades.size.toString())
+                            LabeledValue(stringResource(R.string.practice_win_rate), Fmt.pct(wins * 100.0 / s.closedTrades.size, signed = false))
+                            LabeledValue(stringResource(R.string.practice_realized), Fmt.signedPeso(s.realizedPnl), valueColor = changeColor(s.realizedPnl))
                         }
                     }
                 }
             }
             item {
-                SectionCard("Practice orders") {
-                    if (trades.isEmpty()) MutedText("No practice trades yet. Tap “Practice trade”, or use the button on any stock's trade plan.")
+                SectionCard(stringResource(R.string.practice_orders)) {
+                    if (trades.isEmpty()) MutedText(stringResource(R.string.practice_no_trades))
                     trades.take(50).forEachIndexed { i, t ->
                         if (i > 0) HorizontalDivider()
-                        Text("${t.side} ${t.symbol}", fontWeight = FontWeight.SemiBold, color = changeColor(if (t.side == "BUY") 1.0 else -1.0))
-                        MutedText("${t.date} · ${Fmt.shares(t.shares)} @ ${Fmt.peso(t.price)} · fees ${Fmt.peso(t.fees)}")
+                        Text("${tradeSideLabel(t.side)} ${t.symbol}", fontWeight = FontWeight.SemiBold, color = changeColor(if (t.side == "BUY") 1.0 else -1.0))
+                        MutedText(stringResource(R.string.portfolio_trade_line, t.date, Fmt.shares(t.shares), Fmt.peso(t.price), Fmt.peso(t.fees)))
                     }
                 }
             }
@@ -132,7 +134,7 @@ internal fun PracticeTab(onOpenStock: (String) -> Unit, contentPadding: PaddingV
         ExtendedFloatingActionButton(
             onClick = { ordering = "" },
             icon = { Icon(Icons.Filled.Add, null) },
-            text = { Text("Practice trade") },
+            text = { Text(stringResource(R.string.practice_trade)) },
             modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = contentPadding.calculateBottomPadding() + 16.dp),
         )
     }
@@ -141,10 +143,10 @@ internal fun PracticeTab(onOpenStock: (String) -> Unit, contentPadding: PaddingV
     if (confirmReset) {
         AlertDialog(
             onDismissRequest = { confirmReset = false },
-            title = { Text("Reset practice account?") },
-            text = { Text("This deletes all practice trades and restores ${Fmt.peso(start)} in cash. Your real portfolio is not affected.") },
-            confirmButton = { TextButton(onClick = { scope.launch { c.portfolio.resetPractice() }; confirmReset = false }) { Text("Reset") } },
-            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Cancel") } },
+            title = { Text(stringResource(R.string.practice_reset_title)) },
+            text = { Text(stringResource(R.string.practice_reset_body, Fmt.peso(start))) },
+            confirmButton = { TextButton(onClick = { scope.launch { c.portfolio.resetPractice() }; confirmReset = false }) { Text(stringResource(R.string.practice_reset)) } },
+            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text(stringResource(R.string.portfolio_cancel)) } },
         )
     }
 }
@@ -170,28 +172,29 @@ fun PracticeOrderDialog(initialSymbol: String, cash: Double? = null, onDismiss: 
     val held = summary?.holdings?.firstOrNull { it.symbol == symbol }?.shares ?: 0L
     val price = stock?.close
     val preview = shares.toLongOrNull()?.let { PaperTrading.order(side, it, price, available, held, fees) }
+    val errCheckOrder = stringResource(R.string.practice_error_check_order)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Practice trade") },
+        title = { Text(stringResource(R.string.practice_trade)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                     Side.entries.forEachIndexed { i, s0 ->
-                        SegmentedButton(selected = side == s0, onClick = { side = s0 }, shape = SegmentedButtonDefaults.itemShape(i, Side.entries.size)) { Text(s0.name) }
+                        SegmentedButton(selected = side == s0, onClick = { side = s0 }, shape = SegmentedButtonDefaults.itemShape(i, Side.entries.size)) { Text(tradeSideLabel(s0.name)) }
                     }
                 }
-                OutlinedTextField(symbol, { symbol = it.uppercase().trim() }, label = { Text("Symbol") }, singleLine = true,
+                OutlinedTextField(symbol, { symbol = it.uppercase().trim() }, label = { Text(stringResource(R.string.portfolio_symbol)) }, singleLine = true,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters))
-                OutlinedTextField(shares, { shares = it.filter(Char::isDigit) }, label = { Text("Shares") }, singleLine = true,
+                OutlinedTextField(shares, { shares = it.filter(Char::isDigit) }, label = { Text(stringResource(R.string.portfolio_shares)) }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                 when {
                     symbol.isBlank() -> Unit
-                    price == null -> MutedText("No price for $symbol yet. Check the symbol, or sync first.")
-                    else -> MutedText("Fills at the last close ${Fmt.peso(price)} (${stock?.date}). Board lot: ${PseRules.boardLot(price)} shares.")
+                    price == null -> MutedText(stringResource(R.string.practice_no_price, symbol))
+                    else -> MutedText(stringResource(R.string.practice_fills_at, Fmt.peso(price), stock?.date.toString(), PseRules.boardLot(price).toString()))
                 }
-                MutedText("Practice cash available: ${Fmt.peso(available)}" + if (held > 0) " · you hold ${Fmt.shares(held)}" else "")
-                preview?.onSuccess { MutedText("${if (side == Side.BUY) "Cost" else "You receive"}: ${Fmt.peso(kotlin.math.abs(it.cashChange))} including ${Fmt.peso(it.fees)} fees") }
+                MutedText(stringResource(R.string.practice_cash_available, Fmt.peso(available)) + if (held > 0) " · " + stringResource(R.string.practice_you_hold, Fmt.shares(held)) else "")
+                preview?.onSuccess { MutedText(stringResource(if (side == Side.BUY) R.string.practice_preview_cost else R.string.practice_preview_receive, Fmt.peso(kotlin.math.abs(it.cashChange)), Fmt.peso(it.fees))) }
                     ?.onFailure { MutedText(it.message.orEmpty()) }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
@@ -200,7 +203,7 @@ fun PracticeOrderDialog(initialSymbol: String, cash: Double? = null, onDismiss: 
             TextButton(enabled = preview?.isSuccess == true, onClick = {
                 val order = preview?.getOrNull()
                 if (order == null) {
-                    error = "Check the order."
+                    error = errCheckOrder
                 } else {
                     scope.launch {
                         c.portfolio.addTrade(
@@ -213,8 +216,8 @@ fun PracticeOrderDialog(initialSymbol: String, cash: Double? = null, onDismiss: 
                         onDismiss()
                     }
                 }
-            }) { Text("Place order") }
+            }) { Text(stringResource(R.string.practice_place_order)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.portfolio_cancel)) } },
     )
 }

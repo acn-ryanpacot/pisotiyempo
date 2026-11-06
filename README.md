@@ -21,7 +21,7 @@ An Android app for Philippine Stock Exchange (PSE) investors: daily prices, char
 └─────────────────────────────────────────────────────────┘
 ```
 
-## Features (v1)
+## Features
 
 | Area | What it does |
 |---|---|
@@ -43,6 +43,12 @@ An Android app for Philippine Stock Exchange (PSE) investors: daily prices, char
 | Your own EODHD key | Optional: users with an EODHD plan can add their key (stored encrypted on the phone); prices then come directly from EODHD under their own licence. |
 | Security | Play Integrity sessions (off / monitor / enforce), so only genuine Play installs can use the backend. |
 | Crash reports | Firebase Crashlytics when `app/google-services.json` is present; users can switch it off. |
+| Screener | Presets (strong uptrend, oversold bounce, breakouts, volume surge, weakest) and filters on score, rating, sector, RSI, 50/200-day trend, patterns, volume and 3-month return. Scans the stocks the app analyzes daily. |
+| Practice trading | A separate virtual account (default ₱100,000) with real PSE fees, taxes and board lots; orders fill at the last close. |
+| Trading journal | Notes per trade (setup, emotion, mistakes, plan rating, lesson), habit insights computed on the phone, and optional Claude Opus coaching (one review a day, sent only after the user confirms). |
+| CSV import/export | Export trades, practice trades and the journal; import trades from broker-style CSVs (common column names recognized, duplicates skipped, missing fees estimated). |
+| Privacy and security | The database is encrypted with SQLCipher (key wrapped by the Android Keystore); optional fingerprint/face/PIN app lock. |
+| Languages | App screens in English or Filipino; analysis and AI text in English, Filipino or Taglish. Filipino text should be reviewed by a native speaker before release. |
 
 ## Data sources and fallbacks
 

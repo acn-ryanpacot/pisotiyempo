@@ -21,10 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import com.pisotiyempo.R
 import com.pisotiyempo.ui.common.MutedText
 
 /**
@@ -38,9 +40,9 @@ object AppLock {
     /** Null when the device can lock the app; otherwise why not, for the Settings screen. */
     fun unavailableReason(context: Context): String? = when (BiometricManager.from(context).canAuthenticate(AUTHENTICATORS)) {
         BiometricManager.BIOMETRIC_SUCCESS -> null
-        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> "Set up a fingerprint or screen lock in your phone's settings first."
-        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> "This phone doesn't support app lock."
-        else -> "App lock isn't available on this phone right now."
+        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> context.getString(R.string.lock_none_enrolled)
+        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> context.getString(R.string.lock_no_hardware)
+        else -> context.getString(R.string.lock_unavailable)
     }
 
     fun prompt(activity: FragmentActivity, onUnlocked: () -> Unit, onError: (String) -> Unit) {
@@ -54,8 +56,8 @@ object AppLock {
         )
         prompt.authenticate(
             BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Unlock Piso Tiyempo")
-                .setSubtitle("Your portfolio is protected")
+                .setTitle(activity.getString(R.string.lock_prompt_title))
+                .setSubtitle(activity.getString(R.string.lock_prompt_subtitle))
                 .setAllowedAuthenticators(AUTHENTICATORS)
                 .build(),
         )
@@ -75,9 +77,9 @@ fun LockScreen(onUnlocked: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Piso Tiyempo", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-        MutedText("Locked to protect your portfolio and journal.")
+        Text(stringResource(R.string.lock_app_name), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        MutedText(stringResource(R.string.lock_locked_message))
         error?.let { MutedText(it) }
-        Button(onClick = { ask() }) { Text("Unlock") }
+        Button(onClick = { ask() }) { Text(stringResource(R.string.lock_unlock)) }
     }
 }

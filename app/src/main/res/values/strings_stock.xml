@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Stock detail and screener screens. Filipino versions are in values-tl. -->
+<resources>
+    <!-- StockDetailScreen -->
+    <string name="stock_back">Back</string>
+    <string name="stock_add_alert">Add alert</string>
+    <string name="stock_remove_from_watchlist">Remove from watchlist</string>
+    <string name="stock_add_to_watchlist">Add to watchlist</string>
+    <string name="stock_not_enough_history">Not enough price history to analyze %1$s yet (needs at least 30 trading days).</string>
+    <string name="stock_as_of">As of %1$s</string>
+    <string name="stock_level_support_short">S</string>
+    <string name="stock_level_resistance_short">R</string>
+    <string name="stock_loading_history">Loading price history…</string>
+    <string name="stock_close_only_note">Recent data has closing prices only (fallback source), so candles may look flat.</string>
+    <string name="stock_technical_score">Technical score</string>
+    <string name="stock_score_range">From -100 (strong sell) to +100 (strong buy)</string>
+    <string name="stock_low_liquidity">Low liquidity: average daily value %1$s. Excluded from buy suggestions.</string>
+    <string name="stock_ai_analysis">AI analysis</string>
+    <string name="stock_writing_analysis">Writing analysis…</string>
+    <string name="stock_bull_case">Bull case</string>
+    <string name="stock_bear_case">Bear case</string>
+    <string name="stock_key_levels">Key levels</string>
+    <string name="stock_risk">Risk</string>
+    <string name="stock_stance_confidence">Stance: %1$s · confidence %2$d%%</string>
+    <string name="stock_patterns_detected">Patterns detected</string>
+    <string name="stock_no_patterns">No notable patterns right now.</string>
+    <string name="stock_pattern_forming">forming</string>
+    <string name="stock_pattern_target">Target %1$s</string>
+    <string name="stock_pattern_invalid_beyond">Invalid beyond %1$s</string>
+    <string name="stock_pattern_confidence">Confidence %1$d%%</string>
+    <string name="stock_indicators">Indicators</string>
+    <string name="stock_levels_title">Support, resistance and Fibonacci</string>
+    <string name="stock_support">Support</string>
+    <string name="stock_resistance">Resistance</string>
+    <string name="stock_none_nearby">None nearby</string>
+    <string name="stock_fib_retracements">Fibonacci retracements (last swing)</string>
+    <string name="stock_backtest_title">How these signals worked on %1$s</string>
+    <string name="stock_backtest_not_enough">Not enough history to backtest yet.</string>
+    <string name="stock_backtest_explainer">Each past signal, %1$d trading days later. Win = price moved the expected way.</string>
+    <string name="stock_backtest_signal">Signal</string>
+    <string name="stock_backtest_times">Times</string>
+    <string name="stock_backtest_win_pct" formatted="false">Win %</string>
+    <string name="stock_backtest_avg_move">Avg move</string>
+    <string name="stock_backtest_caveat">Small samples (under 5) are unreliable. Past results don\'t guarantee future moves.</string>
+    <string name="stock_trade_plan">Trade plan (long)</string>
+    <string name="stock_trade_plan_not_enough">Not enough data for a trade plan.</string>
+    <string name="stock_plan_entry">Entry</string>
+    <string name="stock_plan_stop">Stop</string>
+    <string name="stock_plan_target">Target</string>
+    <string name="stock_plan_reward_risk">Reward:risk</string>
+    <string name="stock_plan_capital_too_small">Your capital of %1$s can\'t cover one board lot (%2$d shares, %3$s) within your risk settings.</string>
+    <string name="stock_plan_sizing_one_lot">Risking %1$s%% of %2$s: buy %3$s shares (%4$d board lot of %5$d) for %6$s including fees.</string>
+    <string name="stock_plan_sizing_lots">Risking %1$s%% of %2$s: buy %3$s shares (%4$d board lots of %5$d) for %6$s including fees.</string>
+    <string name="stock_plan_max_loss">Max loss at stop ≈ %1$s plus fees. Break-even after all fees and taxes: %2$s.</string>
+    <string name="stock_plan_capped_by_capital">Position capped by available capital.</string>
+    <string name="stock_record_trade">Record a trade</string>
+    <string name="stock_practice_trade">Practice trade</string>
+    <string name="stock_dividends">Dividends</string>
+    <string name="stock_no_dividends">No dividend history found.</string>
+    <string name="stock_div_type_cash">Cash</string>
+    <string name="stock_div_type_stock">Stock</string>
+    <string name="stock_div_type_property">Property</string>
+    <string name="stock_div_type_other">Other</string>
+    <string name="stock_div_dates">Ex-date %1$s · Pay %2$s</string>
+    <string name="stock_disclosures">Company disclosures (PSE Edge)</string>
+    <string name="stock_no_disclosures">No recent disclosures.</string>
+    <string name="stock_impact_positive">positive</string>
+    <string name="stock_impact_negative">negative</string>
+    <string name="stock_impact_neutral">neutral</string>
+    <string name="stock_ai_impact">AI: %1$s</string>
+    <string name="stock_open">Open</string>
+    <string name="stock_summarizing">Summarizing…</string>
+    <string name="stock_ai_summary">AI summary</string>
+
+    <!-- ScreenerScreen -->
+    <string name="screener_title">Screener</string>
+    <string name="screener_back">Back</string>
+    <string name="screener_hide_filters">Hide filters</string>
+    <string name="screener_filters">Filters</string>
+    <string name="screener_custom_scan">Custom scan</string>
+    <string name="screener_sort">Sort:</string>
+    <string name="screener_match_count">%1$d of %2$d analyzed stocks match. The app analyzes the 120 most-traded PSE stocks plus your holdings and watchlist each day.</string>
+    <string name="screener_empty">Nothing to screen yet. Results appear after the first daily sync.</string>
+    <string name="screener_sectors">Sectors</string>
+    <string name="screener_rating">Rating</string>
+    <string name="screener_trend">Trend</string>
+    <string name="screener_above_50_day">Above 50-day</string>
+    <string name="screener_above_200_day">Above 200-day</string>
+    <string name="screener_patterns">Patterns</string>
+    <string name="screener_pattern_name_hint">Pattern name contains (e.g. flag, double bottom)</string>
+    <string name="screener_min_score">Min score</string>
+    <string name="screener_max_score">Max score</string>
+    <string name="screener_min_rsi">Min RSI</string>
+    <string name="screener_max_rsi">Max RSI</string>
+    <string name="screener_min_volume_ratio">Min volume × avg</string>
+    <string name="screener_min_return_3m" formatted="false">Min 3M return %</string>
+    <string name="screener_liquid_only">Liquid stocks only</string>
+    <string name="screener_liquid_only_desc">At least ₱2M traded a day on average</string>
+    <string name="screener_clear_filters">Clear all filters</string>
+    <string name="screener_fundamentals_note">P/E and dividend-yield filters need EODHD\'s fundamentals data, which this version doesn\'t use.</string>
+    <string name="screener_tri_yes">%1$s: yes</string>
+    <string name="screener_tri_no">%1$s: no</string>
+</resources>

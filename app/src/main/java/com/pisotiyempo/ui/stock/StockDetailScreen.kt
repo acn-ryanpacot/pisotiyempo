@@ -41,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -48,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pisotiyempo.AppContainer
+import com.pisotiyempo.R
 import com.pisotiyempo.data.local.DisclosureEntity
 import com.pisotiyempo.data.local.DividendEntity
 import com.pisotiyempo.data.local.StockEntity
@@ -73,7 +75,10 @@ import com.pisotiyempo.ui.common.SectionCard
 import com.pisotiyempo.ui.common.SourceBadge
 import com.pisotiyempo.ui.common.StanceBadge
 import com.pisotiyempo.ui.common.appContainer
+import com.pisotiyempo.ui.common.categoryLabel
 import com.pisotiyempo.ui.common.changeColor
+import com.pisotiyempo.ui.common.directionLabel
+import com.pisotiyempo.ui.common.stanceLabel
 import com.pisotiyempo.ui.portfolio.AddTradeDialog
 import com.pisotiyempo.ui.portfolio.PracticeOrderDialog
 import com.pisotiyempo.ui.theme.LocalMarketColors
@@ -148,11 +153,11 @@ fun StockDetailScreen(symbol: String, onBack: () -> Unit) {
                         stock?.let { MutedText("${it.name} · ${it.sector}") }
                     }
                 },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.stock_back)) } },
                 actions = {
-                    IconButton(onClick = { showAlert = true }) { Icon(Icons.Filled.AddAlert, "Add alert") }
+                    IconButton(onClick = { showAlert = true }) { Icon(Icons.Filled.AddAlert, stringResource(R.string.stock_add_alert)) }
                     IconButton(onClick = { vm.toggleWatch(watched) }) {
-                        Icon(if (watched) Icons.Filled.Star else Icons.Filled.StarBorder, if (watched) "Remove from watchlist" else "Add to watchlist")
+                        Icon(if (watched) Icons.Filled.Star else Icons.Filled.StarBorder, stringResource(if (watched) R.string.stock_remove_from_watchlist else R.string.stock_add_to_watchlist))
                     }
                 },
             )
@@ -178,7 +183,7 @@ fun StockDetailScreen(symbol: String, onBack: () -> Unit) {
                 item { TradePlanCard(a, onAddTrade = { showTrade = true }, onPractice = { showPractice = true }) }
             }
             if (!loading && analysis == null) {
-                item { SectionCard { MutedText("Not enough price history to analyze $symbol yet (needs at least 30 trading days).") } }
+                item { SectionCard { MutedText(stringResource(R.string.stock_not_enough_history, symbol)) } }
             }
             item { DividendsCard(dividends) }
             item { DisclosuresCard(disclosures, summarizing, onSummarize = vm::summarize) }
@@ -198,7 +203,7 @@ private fun PriceHeader(stock: StockEntity?, analysis: StockAnalysis?) {
         ChangeText(stock?.changePct, bold = true)
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
             analysis?.let { StanceBadge(it.stance, it.score) }
-            stock?.let { MutedText("As of ${it.date}") }
+            stock?.let { MutedText(stringResource(R.string.stock_as_of, it.date)) }
         }
     }
 }
@@ -209,9 +214,11 @@ private fun ChartCard(allBars: List<Bar>, analysis: StockAnalysis?) {
     var range by remember { mutableStateOf(Range.M6) }
     var overlays by remember { mutableStateOf(setOf(Overlay.SMA50, Overlay.SMA200)) }
     val market = LocalMarketColors.current
+    val supportShort = stringResource(R.string.stock_level_support_short)
+    val resistanceShort = stringResource(R.string.stock_level_resistance_short)
     SectionCard {
         if (allBars.isEmpty()) {
-            MutedText("Loading price history…")
+            MutedText(stringResource(R.string.stock_loading_history))
             return@SectionCard
         }
         val cutoff = allBars.last().date.minusDays(range.days)
@@ -223,8 +230,8 @@ private fun ChartCard(allBars: List<Bar>, analysis: StockAnalysis?) {
             ?.map { it.copy(endIndex = it.endIndex - start, startIndex = (it.startIndex - start).coerceAtLeast(0)) }
             .orEmpty()
         val levels = buildList {
-            analysis?.supports?.take(2)?.forEach { add(ChartLevel(it.price, "S", market.gain)) }
-            analysis?.resistances?.take(2)?.forEach { add(ChartLevel(it.price, "R", market.loss)) }
+            analysis?.supports?.take(2)?.forEach { add(ChartLevel(it.price, supportShort, market.gain)) }
+            analysis?.resistances?.take(2)?.forEach { add(ChartLevel(it.price, resistanceShort, market.loss)) }
         }
         PriceChart(
             bars = shown,
@@ -241,18 +248,18 @@ private fun ChartCard(allBars: List<Bar>, analysis: StockAnalysis?) {
                 FilterChip(selected = o in overlays, onClick = { overlays = if (o in overlays) overlays - o else overlays + o }, label = { Text(o.label) })
             }
         }
-        if (analysis != null && !analysis.hasOhlc) MutedText("Recent data has closing prices only (fallback source), so candles may look flat.")
+        if (analysis != null && !analysis.hasOhlc) MutedText(stringResource(R.string.stock_close_only_note))
     }
 }
 
 @Composable
 private fun ScoreCard(a: StockAnalysis) {
-    SectionCard("Technical score") {
+    SectionCard(stringResource(R.string.stock_technical_score)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(a.score.toString(), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold, color = changeColor(a.score.toDouble()))
             Column {
                 StanceBadge(a.stance)
-                MutedText("From -100 (strong sell) to +100 (strong buy)")
+                MutedText(stringResource(R.string.stock_score_range))
             }
         }
         a.components.forEach { (name, v) ->
@@ -261,53 +268,57 @@ private fun ScoreCard(a: StockAnalysis) {
                 Text(if (v >= 0) "+%.2f".format(v) else "%.2f".format(v), color = changeColor(v), style = MaterialTheme.typography.bodyMedium)
             }
         }
-        if (!a.isLiquid) MutedText("Low liquidity: average daily value ${Fmt.compactPeso(a.avgDailyValue)}. Excluded from buy suggestions.")
+        if (!a.isLiquid) MutedText(stringResource(R.string.stock_low_liquidity, Fmt.compactPeso(a.avgDailyValue)))
     }
 }
 
 @Composable
 private fun NarrativeCard(n: Narrative?) {
-    SectionCard("AI analysis", trailing = { n?.let { SourceBadge(it.source) } }) {
+    SectionCard(stringResource(R.string.stock_ai_analysis), trailing = { n?.let { SourceBadge(it.source) } }) {
         if (n == null) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 CircularProgressIndicator(Modifier.height(20.dp))
-                MutedText("Writing analysis…")
+                MutedText(stringResource(R.string.stock_writing_analysis))
             }
             return@SectionCard
         }
         Text(n.headline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(n.summary, style = MaterialTheme.typography.bodyMedium)
-        Text("Bull case", style = MaterialTheme.typography.labelLarge, color = changeColor(1.0))
+        Text(stringResource(R.string.stock_bull_case), style = MaterialTheme.typography.labelLarge, color = changeColor(1.0))
         Bullets(n.bullCase)
-        Text("Bear case", style = MaterialTheme.typography.labelLarge, color = changeColor(-1.0))
+        Text(stringResource(R.string.stock_bear_case), style = MaterialTheme.typography.labelLarge, color = changeColor(-1.0))
         Bullets(n.bearCase)
-        Text("Key levels", style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(R.string.stock_key_levels), style = MaterialTheme.typography.labelLarge)
         Text(n.keyLevels, style = MaterialTheme.typography.bodyMedium)
-        Text("Risk", style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(R.string.stock_risk), style = MaterialTheme.typography.labelLarge)
         Text(n.riskNote, style = MaterialTheme.typography.bodyMedium)
-        MutedText("Stance: ${n.stance.label} · confidence ${n.confidence}%")
+        MutedText(stringResource(R.string.stock_stance_confidence, stanceLabel(n.stance), n.confidence))
     }
 }
 
 @Composable
 private fun PatternsCard(a: StockAnalysis) {
-    SectionCard("Patterns detected") {
+    SectionCard(stringResource(R.string.stock_patterns_detected)) {
         if (a.patterns.isEmpty()) {
-            MutedText("No notable patterns right now.")
+            MutedText(stringResource(R.string.stock_no_patterns))
             return@SectionCard
         }
         a.patterns.groupBy { it.category }.forEach { (category, hits) ->
-            Text(category.label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(categoryLabel(category), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             hits.forEach { p ->
                 Column(Modifier.padding(vertical = 4.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         val color = when (p.direction) { Direction.BULLISH -> changeColor(1.0); Direction.BEARISH -> changeColor(-1.0); Direction.NEUTRAL -> changeColor(0.0) }
                         Text(p.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-                        Pill(p.direction.name.lowercase(), color.copy(alpha = 0.15f), color)
-                        if (!p.confirmed) Pill("forming", MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant)
+                        Pill(directionLabel(p.direction), color.copy(alpha = 0.15f), color)
+                        if (!p.confirmed) Pill(stringResource(R.string.stock_pattern_forming), MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     MutedText(p.detail)
-                    val extras = listOfNotNull(p.target?.let { "Target ${Fmt.peso(it)}" }, p.invalidation?.let { "Invalid beyond ${Fmt.peso(it)}" }, "Confidence ${(p.confidence * 100).toInt()}%")
+                    val extras = listOfNotNull(
+                        p.target?.let { stringResource(R.string.stock_pattern_target, Fmt.peso(it)) },
+                        p.invalidation?.let { stringResource(R.string.stock_pattern_invalid_beyond, Fmt.peso(it)) },
+                        stringResource(R.string.stock_pattern_confidence, (p.confidence * 100).toInt()),
+                    )
                     MutedText(extras.joinToString(" · "))
                 }
             }
@@ -323,7 +334,7 @@ private fun IndicatorsCard(a: StockAnalysis) {
         "sma20" to "SMA 20", "sma50" to "SMA 50", "sma200" to "SMA 200", "bbUpper" to "Bollinger upper",
         "bbLower" to "Bollinger lower", "atr14" to "ATR (14)", "adx14" to "ADX (14)", "stochK" to "Stochastic %K", "stochD" to "Stochastic %D",
     )
-    SectionCard("Indicators") {
+    SectionCard(stringResource(R.string.stock_indicators)) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             a.indicators.forEach { (k, v) -> LabeledValue(labels[k] ?: k, Fmt.num(v)) }
         }
@@ -333,22 +344,22 @@ private fun IndicatorsCard(a: StockAnalysis) {
 
 @Composable
 private fun LevelsCard(a: StockAnalysis) {
-    SectionCard("Support, resistance and Fibonacci") {
+    SectionCard(stringResource(R.string.stock_levels_title)) {
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
             Column(Modifier.weight(1f)) {
-                Text("Support", style = MaterialTheme.typography.labelLarge, color = changeColor(1.0))
-                if (a.supports.isEmpty()) MutedText("None nearby")
+                Text(stringResource(R.string.stock_support), style = MaterialTheme.typography.labelLarge, color = changeColor(1.0))
+                if (a.supports.isEmpty()) MutedText(stringResource(R.string.stock_none_nearby))
                 a.supports.forEach { Text("${Fmt.peso(it.price)}  (${it.touches}×)", style = MaterialTheme.typography.bodyMedium) }
             }
             Column(Modifier.weight(1f)) {
-                Text("Resistance", style = MaterialTheme.typography.labelLarge, color = changeColor(-1.0))
-                if (a.resistances.isEmpty()) MutedText("None nearby")
+                Text(stringResource(R.string.stock_resistance), style = MaterialTheme.typography.labelLarge, color = changeColor(-1.0))
+                if (a.resistances.isEmpty()) MutedText(stringResource(R.string.stock_none_nearby))
                 a.resistances.forEach { Text("${Fmt.peso(it.price)}  (${it.touches}×)", style = MaterialTheme.typography.bodyMedium) }
             }
         }
         if (a.fibLevels.isNotEmpty()) {
             HorizontalDivider()
-            Text("Fibonacci retracements (last swing)", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.stock_fib_retracements), style = MaterialTheme.typography.labelLarge)
             a.fibLevels.forEach {
                 Row { Text("${"%.1f".format(it.ratio * 100)}%", modifier = Modifier.weight(1f)); Text(Fmt.peso(it.price)) }
             }
@@ -358,17 +369,17 @@ private fun LevelsCard(a: StockAnalysis) {
 
 @Composable
 private fun BacktestCard(a: StockAnalysis) {
-    SectionCard("How these signals worked on ${a.symbol}") {
+    SectionCard(stringResource(R.string.stock_backtest_title, a.symbol)) {
         if (a.backtest.isEmpty()) {
-            MutedText("Not enough history to backtest yet.")
+            MutedText(stringResource(R.string.stock_backtest_not_enough))
             return@SectionCard
         }
-        MutedText("Each past signal, ${a.backtest.first().horizonDays} trading days later. Win = price moved the expected way.")
+        MutedText(stringResource(R.string.stock_backtest_explainer, a.backtest.first().horizonDays))
         Row {
-            Text("Signal", style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
-            Text("Times", style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(0.3f))
-            Text("Win %", style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(0.35f))
-            Text("Avg move", style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(0.4f))
+            Text(stringResource(R.string.stock_backtest_signal), style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.stock_backtest_times), style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(0.3f))
+            Text(stringResource(R.string.stock_backtest_win_pct), style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(0.35f))
+            Text(stringResource(R.string.stock_backtest_avg_move), style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(0.4f))
         }
         a.backtest.take(12).forEach { s ->
             Row {
@@ -378,58 +389,68 @@ private fun BacktestCard(a: StockAnalysis) {
                 Text(Fmt.pct(s.avgReturnPct), style = MaterialTheme.typography.bodySmall, color = changeColor(s.avgReturnPct), modifier = Modifier.weight(0.4f))
             }
         }
-        MutedText("Small samples (under 5) are unreliable. Past results don't guarantee future moves.")
+        MutedText(stringResource(R.string.stock_backtest_caveat))
     }
 }
 
 @Composable
 private fun TradePlanCard(a: StockAnalysis, onAddTrade: () -> Unit, onPractice: () -> Unit) {
     val settings by appContainer().settings.settings.collectAsStateWithLifecycle(null)
-    SectionCard("Trade plan (long)") {
+    SectionCard(stringResource(R.string.stock_trade_plan)) {
         val plan = a.plan
         val s = settings
         if (plan == null || s == null) {
-            MutedText("Not enough data for a trade plan.")
+            MutedText(stringResource(R.string.stock_trade_plan_not_enough))
             return@SectionCard
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LabeledValue("Entry", Fmt.peso(plan.entry))
-            LabeledValue("Stop", Fmt.peso(plan.stop), valueColor = changeColor(-1.0))
-            LabeledValue("Target", Fmt.peso(plan.target), valueColor = changeColor(1.0))
-            LabeledValue("Reward:risk", "%.1f".format(plan.rewardToRisk))
+            LabeledValue(stringResource(R.string.stock_plan_entry), Fmt.peso(plan.entry))
+            LabeledValue(stringResource(R.string.stock_plan_stop), Fmt.peso(plan.stop), valueColor = changeColor(-1.0))
+            LabeledValue(stringResource(R.string.stock_plan_target), Fmt.peso(plan.target), valueColor = changeColor(1.0))
+            LabeledValue(stringResource(R.string.stock_plan_reward_risk), "%.1f".format(plan.rewardToRisk))
         }
         val size = RiskTools.positionSize(s.capital, s.riskPct, plan.entry, plan.stop, s.fees)
         val lot = PseRules.boardLot(plan.entry)
         if (size == null || size.shares == 0L) {
-            MutedText("Your capital of ${Fmt.peso(s.capital)} can't cover one board lot ($lot shares, ${Fmt.peso(RiskTools.minimumInvestment(plan.entry, s.fees))}) within your risk settings.")
+            MutedText(stringResource(R.string.stock_plan_capital_too_small, Fmt.peso(s.capital), lot, Fmt.peso(RiskTools.minimumInvestment(plan.entry, s.fees))))
         } else {
             val be = FeeCalculator.breakEvenPrice(size.shares, plan.entry, s.fees)
+            val lots = size.shares / lot
             Text(
-                "Risking ${Fmt.num(s.riskPct, 1)}% of ${Fmt.peso(s.capital)}: buy ${Fmt.shares(size.shares)} shares " +
-                    "(${size.shares / lot} board lot${if (size.shares / lot == 1L) "" else "s"} of $lot) for ${Fmt.peso(size.cost)} including fees.",
+                stringResource(
+                    if (lots == 1L) R.string.stock_plan_sizing_one_lot else R.string.stock_plan_sizing_lots,
+                    Fmt.num(s.riskPct, 1), Fmt.peso(s.capital), Fmt.shares(size.shares), lots, lot, Fmt.peso(size.cost),
+                ),
                 style = MaterialTheme.typography.bodyMedium,
             )
-            MutedText("Max loss at stop ≈ ${Fmt.peso(size.riskAmount)} plus fees. Break-even after all fees and taxes: ${Fmt.peso(be)}." +
-                if (size.limitedByCapital) " Position capped by available capital." else "")
+            MutedText(stringResource(R.string.stock_plan_max_loss, Fmt.peso(size.riskAmount), Fmt.peso(be)) +
+                if (size.limitedByCapital) " " + stringResource(R.string.stock_plan_capped_by_capital) else "")
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onAddTrade) { Text("Record a trade") }
-            OutlinedButton(onClick = onPractice) { Text("Practice trade") }
+            OutlinedButton(onClick = onAddTrade) { Text(stringResource(R.string.stock_record_trade)) }
+            OutlinedButton(onClick = onPractice) { Text(stringResource(R.string.stock_practice_trade)) }
         }
     }
 }
 
 @Composable
 private fun DividendsCard(rows: List<DividendEntity>) {
-    SectionCard("Dividends") {
+    SectionCard(stringResource(R.string.stock_dividends)) {
         if (rows.isEmpty()) {
-            MutedText("No dividend history found.")
+            MutedText(stringResource(R.string.stock_no_dividends))
             return@SectionCard
         }
         rows.take(6).forEach { d ->
             Column(Modifier.padding(vertical = 2.dp)) {
-                Text("${d.type.lowercase().replaceFirstChar { it.uppercase() }} · ${d.amount?.let { Fmt.peso(it) } ?: d.rateText}", style = MaterialTheme.typography.bodyMedium)
-                MutedText("Ex-date ${d.exDate} · Pay ${d.paymentDate ?: "—"}")
+                val typeLabel = when (d.type) {
+                    "CASH" -> stringResource(R.string.stock_div_type_cash)
+                    "STOCK" -> stringResource(R.string.stock_div_type_stock)
+                    "PROPERTY" -> stringResource(R.string.stock_div_type_property)
+                    "OTHER" -> stringResource(R.string.stock_div_type_other)
+                    else -> d.type.lowercase().replaceFirstChar { it.uppercase() }
+                }
+                Text("$typeLabel · ${d.amount?.let { Fmt.peso(it) } ?: d.rateText}", style = MaterialTheme.typography.bodyMedium)
+                MutedText(stringResource(R.string.stock_div_dates, d.exDate, d.paymentDate ?: "—"))
             }
         }
     }
@@ -438,9 +459,9 @@ private fun DividendsCard(rows: List<DividendEntity>) {
 @Composable
 private fun DisclosuresCard(rows: List<DisclosureEntity>, summarizing: String?, onSummarize: (DisclosureEntity) -> Unit) {
     val context = LocalContext.current
-    SectionCard("Company disclosures (PSE Edge)") {
+    SectionCard(stringResource(R.string.stock_disclosures)) {
         if (rows.isEmpty()) {
-            MutedText("No recent disclosures.")
+            MutedText(stringResource(R.string.stock_no_disclosures))
             return@SectionCard
         }
         rows.take(8).forEachIndexed { i, d ->
@@ -450,15 +471,22 @@ private fun DisclosuresCard(rows: List<DisclosureEntity>, summarizing: String?, 
                 MutedText(d.announcedAt.take(16).replace('T', ' '))
                 if (d.summary != null) {
                     val color = when (d.impact) { "POSITIVE" -> changeColor(1.0); "NEGATIVE" -> changeColor(-1.0); else -> changeColor(0.0) }
-                    Pill("AI: ${d.impact?.lowercase() ?: "neutral"}", color.copy(alpha = 0.15f), color)
+                    val impactLabel = stringResource(
+                        when (d.impact) {
+                            "POSITIVE" -> R.string.stock_impact_positive
+                            "NEGATIVE" -> R.string.stock_impact_negative
+                            else -> R.string.stock_impact_neutral
+                        },
+                    )
+                    Pill(stringResource(R.string.stock_ai_impact, impactLabel), color.copy(alpha = 0.15f), color)
                     Text(d.summary, style = MaterialTheme.typography.bodySmall)
                     d.keyPoints?.lines()?.filter { it.isNotBlank() }?.let { Bullets(it) }
                 }
                 Row {
-                    TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(d.url))) }) { Text("Open") }
+                    TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(d.url))) }) { Text(stringResource(R.string.stock_open)) }
                     if (d.summary == null) {
                         TextButton(onClick = { onSummarize(d) }, enabled = summarizing == null) {
-                            Text(if (summarizing == d.id) "Summarizing…" else "AI summary")
+                            Text(stringResource(if (summarizing == d.id) R.string.stock_summarizing else R.string.stock_ai_summary))
                         }
                     }
                 }

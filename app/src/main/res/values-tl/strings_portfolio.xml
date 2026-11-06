@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Filipino. Terms Filipino investors normally say in English (portfolio, shares, board lot, fees, win rate) stay in English. -->
+<resources>
+    <!-- Tabs (PortfolioTabs.kt) -->
+    <string name="portfolio_tab_mine">Portfolio ko</string>
+    <string name="portfolio_tab_practice">Practice</string>
+    <string name="portfolio_tab_journal">Journal</string>
+
+    <!-- Real portfolio (PortfolioScreen.kt) -->
+    <string name="portfolio_side_buy">BILI</string>
+    <string name="portfolio_side_sell">BENTA</string>
+    <string name="portfolio_title">Portfolio</string>
+    <string name="portfolio_cost_basis">Puhunan</string>
+    <string name="portfolio_unrealized">Unrealized</string>
+    <string name="portfolio_today">Ngayong araw</string>
+    <string name="portfolio_realized">Realized</string>
+    <string name="portfolio_dividends_net" formatted="false">Dibidendo (bawas na ang 10% tax)</string>
+    <string name="portfolio_average_cost_note">Average-cost method; kasama sa puhunan ang fees sa pagbili, at ibinabawas sa realized na kita ang fees at tax sa pagbenta.</string>
+    <string name="portfolio_diversification_check">Pagsusuri ng diversification</string>
+    <string name="portfolio_sector_mix">Halo ng mga sektor</string>
+    <string name="portfolio_holdings">Mga hawak</string>
+    <string name="portfolio_holding_line">%1$s sh · avg %2$s · %3$s</string>
+    <string name="portfolio_upcoming_dividends">Paparating na dibidendo</string>
+    <string name="portfolio_dividend_qualify">Hawakan bago ang %1$s para maka-qualify · ibabayad sa %2$s</string>
+    <string name="portfolio_trade_history">Kasaysayan ng trade</string>
+    <string name="portfolio_no_trades">Wala pang trade. I-tap ang “Magdagdag ng trade” para itala ang bili o benta mo sa broker.</string>
+    <string name="portfolio_trade_line">%1$s · %2$s @ %3$s · fees %4$s</string>
+    <string name="portfolio_delete_trade">Burahin ang trade</string>
+    <string name="portfolio_add_trade">Magdagdag ng trade</string>
+    <string name="portfolio_record_trade">Itala ang trade</string>
+    <string name="portfolio_symbol">Symbol</string>
+    <string name="portfolio_shares">Shares</string>
+    <string name="portfolio_price">Presyo (₱)</string>
+    <string name="portfolio_date">Petsa (YYYY-MM-DD)</string>
+    <string name="portfolio_fees_and_taxes">Fees at tax (₱)</string>
+    <string name="portfolio_fees_auto">auto</string>
+    <string name="portfolio_odd_lot">Sa presyong ito, %1$s shares ang board lot; odd lot ang %2$s.</string>
+    <string name="portfolio_estimated_fees">Tantiyang fees: %1$s ayon sa fee settings mo. Iwanang blangko para ito ang gamitin.</string>
+    <string name="portfolio_error_symbol">Maglagay ng tamang PSE symbol.</string>
+    <string name="portfolio_error_shares">Ilagay ang dami ng shares.</string>
+    <string name="portfolio_error_price">Ilagay ang presyo.</string>
+    <string name="portfolio_error_date">Maglagay ng tamang petsa, hindi sa hinaharap.</string>
+    <string name="portfolio_error_fees">Ilagay ang fees.</string>
+    <string name="portfolio_save">I-save</string>
+    <string name="portfolio_cancel">Kanselahin</string>
+
+    <!-- Practice account (PracticeTab.kt) -->
+    <string name="practice_account">Practice account</string>
+    <string name="practice_cash">Cash</string>
+    <string name="practice_invested">Naka-invest</string>
+    <string name="practice_return">Return</string>
+    <string name="practice_virtual_money_note">Virtual na pera. Natutuloy ang mga order sa pinakahuling closing price, may totoong PSE fees, tax at board lot.</string>
+    <string name="practice_reset_account">I-reset ang practice account</string>
+    <string name="practice_holdings">Mga hawak sa practice</string>
+    <string name="practice_holding_line">%1$s sh · avg %2$s</string>
+    <string name="practice_trade_button">Trade</string>
+    <string name="practice_results">Resulta ng practice</string>
+    <string name="practice_closed_trades">Closed trades</string>
+    <string name="practice_win_rate">Win rate</string>
+    <string name="practice_realized">Realized</string>
+    <string name="practice_orders">Mga practice order</string>
+    <string name="practice_no_trades">Wala pang practice trade. I-tap ang “Practice trade”, o gamitin ang button sa trade plan ng kahit anong stock.</string>
+    <string name="practice_trade">Practice trade</string>
+    <string name="practice_reset_title">I-reset ang practice account?</string>
+    <string name="practice_reset_body">Buburahin nito ang lahat ng practice trade at ibabalik ang %1$s na cash. Hindi maaapektuhan ang totoo mong portfolio.</string>
+    <string name="practice_reset">I-reset</string>
+    <string name="practice_no_price">Wala pang presyo para sa %1$s. Tingnan ang symbol, o mag-sync muna.</string>
+    <string name="practice_fills_at">Matutuloy sa huling close na %1$s (%2$s). Board lot: %3$s shares.</string>
+    <string name="practice_cash_available">Practice cash na magagamit: %1$s</string>
+    <string name="practice_you_hold">hawak mo ang %1$s</string>
+    <string name="practice_preview_cost">Gastos: %1$s, kasama ang %2$s na fees</string>
+    <string name="practice_preview_receive">Matatanggap mo: %1$s, kasama ang %2$s na fees</string>
+    <string name="practice_error_check_order">Suriin ang order.</string>
+    <string name="practice_place_order">Ituloy ang order</string>
+
+    <!-- Trading journal (JournalTab.kt) -->
+    <string name="journal_ai_coaching">AI coaching (Claude)</string>
+    <string name="journal_reading">Binabasa ang journal mo…</string>
+    <string name="journal_coaching_intro">Makakuha ng personal na coaching sa iyong mga gawi, batay sa notes at closed trades mo. Isang review kada araw.</string>
+    <string name="journal_get_coaching">Kumuha ng AI coaching</string>
+    <string name="journal_entries">Mga entry</string>
+    <string name="journal_empty">Magsulat ng note tuwing bibili o magbebenta ka: bakit, ano ang naramdaman mo, at ano ang gagawin mong iba. Lalabas ang mga pattern pagkalipas ng ilang linggo.</string>
+    <string name="journal_entry_felt">%1$s · pakiramdam: %2$s</string>
+    <string name="journal_entry_plan_followed">pagsunod sa plano %1$d/5</string>
+    <string name="journal_delete_entry">Burahin ang entry</string>
+    <string name="journal_mistakes_line">Mga mali: %1$s</string>
+    <string name="journal_lesson_line">Aral: %1$s</string>
+    <string name="journal_new_entry">Bagong entry</string>
+    <string name="journal_consent_title">Ipadala ang journal mo sa Claude?</string>
+    <string name="journal_consent_body" formatted="false">Ipapadala sa aming server at sa Claude ng Anthropic ang huling 40 mong journal note (kasama ang mga isinulat mo) at ang resulta ng iyong closed trades (symbol, petsa, % na kita o lugi) para isulat ang iyong review. Hindi ipapadala ang dami ng shares at ang mga halaga sa piso.</string>
+    <string name="journal_send">Ipadala</string>
+    <string name="journal_cancel">Kanselahin</string>
+    <string name="journal_habits">Mga gawi mo sa pag-trade</string>
+    <string name="journal_closed_trades">Closed trades</string>
+    <string name="journal_win_rate">Win rate</string>
+    <string name="journal_avg_win">Avg na panalo</string>
+    <string name="journal_avg_loss">Avg na talo</string>
+    <string name="journal_by_setup">Ayon sa setup</string>
+    <string name="journal_by_emotion">Ayon sa emosyon</string>
+    <string name="journal_habits_note">Kinuwenta sa phone mo mula sa totoong trade (hindi practice) at sa notes mo.</string>
+    <string name="journal_group_won">%1$d%% panalo</string>
+    <string name="journal_review_strengths">Mga tama mong ginagawa</string>
+    <string name="journal_review_mistakes">Paulit-ulit na mali</string>
+    <string name="journal_review_suggestions">Subukan ito</string>
+    <string name="journal_review_focus">Susunod na pagtuunan: %1$s</string>
+    <string name="journal_review_footer">Isinulat ni Claude mula sa journal mo. Coaching ito, hindi investment advice.</string>
+    <string name="journal_entry_title">Journal entry</string>
+    <string name="journal_symbol">Symbol</string>
+    <string name="journal_date">Petsa</string>
+    <string name="journal_setup">Setup</string>
+    <string name="journal_feel">Ano ang naramdaman mo?</string>
+    <string name="journal_mistakes_if_any">Mga mali (kung meron)</string>
+    <string name="journal_plan_rating">Gaano mo kahusay sinunod ang plano mo?</string>
+    <string name="journal_reason">Bakit mo ginawa ang trade na ito?</string>
+    <string name="journal_lesson">Aral o ano ang gagawin mong iba</string>
+    <string name="journal_error_symbol">Maglagay ng tamang PSE symbol.</string>
+    <string name="journal_error_date">Ilagay ang petsa bilang YYYY-MM-DD.</string>
+    <string name="journal_save">I-save</string>
+</resources>

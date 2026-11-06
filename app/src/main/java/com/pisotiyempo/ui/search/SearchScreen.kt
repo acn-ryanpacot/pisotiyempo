@@ -25,8 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import com.pisotiyempo.R
 import com.pisotiyempo.data.local.StockEntity
 import com.pisotiyempo.ui.common.MutedText
 import com.pisotiyempo.ui.common.StockRow
@@ -50,12 +52,12 @@ fun SearchScreen(onOpenStock: (String) -> Unit, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back)) } },
                 title = {
                     TextField(
                         value = query,
                         onValueChange = { query = it },
-                        placeholder = { Text("Symbol or company name") },
+                        placeholder = { Text(stringResource(R.string.search_placeholder)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
                         modifier = Modifier.fillMaxWidth().focusRequester(focus),
@@ -65,7 +67,7 @@ fun SearchScreen(onOpenStock: (String) -> Unit, onBack: () -> Unit) {
         },
     ) { padding ->
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding())) {
-            if (query.isNotBlank() && results.isEmpty()) item { MutedText("No matches. Stocks appear after the first sync.") }
+            if (query.isNotBlank() && results.isEmpty()) item { MutedText(stringResource(R.string.search_no_matches)) }
             items(results, key = { it.symbol }) { s ->
                 StockRow(s.symbol, s.name, s.close, s.changePct, subtitle = "${s.name} · ${s.sector}", onClick = { onOpenStock(s.symbol) })
                 HorizontalDivider()

@@ -20,8 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pisotiyempo.AppContainer
+import com.pisotiyempo.R
 import com.pisotiyempo.data.local.JournalEntity
 import com.pisotiyempo.data.local.TradeEntity
 import com.pisotiyempo.data.repo.MANILA
@@ -37,10 +39,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-private enum class ExportKind(val label: String, val fileName: String) {
-    REAL("My trades", "piso-tiyempo-trades"),
-    PRACTICE("Practice trades", "piso-tiyempo-practice-trades"),
-    JOURNAL("Journal", "piso-tiyempo-journal"),
+/** [buttonRes] is the export button's text; [exportedRes] the "Exported N …" message, which takes the count. */
+private enum class ExportKind(val buttonRes: Int, val exportedRes: Int, val fileName: String) {
+    REAL(R.string.backup_export_real, R.string.backup_exported_real, "piso-tiyempo-trades"),
+    PRACTICE(R.string.backup_export_practice, R.string.backup_exported_practice, "piso-tiyempo-practice-trades"),
+    JOURNAL(R.string.backup_export_journal, R.string.backup_exported_journal, "piso-tiyempo-journal"),
 }
 
 /** What an import found, waiting for the user to confirm. */
@@ -62,41 +65,44 @@ internal fun BackupCard() {
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         val kind = exporting
-        if (uri != null && kind != null) scope.launch { message = runCatching { export(context, c, kind, uri) }.getOrElse { "Export failed: ${it.message}" } }
+        if (uri != null && kind != null) scope.launch {
+            message = runCatching { export(context, c, kind, uri) }.getOrElse { context.getString(R.string.backup_export_failed, it.message.toString()) }
+        }
         exporting = null
     }
     val importTrades = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) scope.launch { runCatching { pending = prepareTrades(context, c, uri) }.onFailure { message = "Couldn't read the file: ${it.message}" } }
+        if (uri != null) scope.launch {
+            runCatching { pending = prepareTrades(context, c, uri) }.onFailure { message = context.getString(R.string.backup_read_failed, it.message.toString()) }
+        }
     }
     val importJournal = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) scope.launch { runCatching { pending = prepareJournal(context, c, uri) }.onFailure { message = "Couldn't read the file: ${it.message}" } }
+        if (uri != null) scope.launch {
+            runCatching { pending = prepareJournal(context, c, uri) }.onFailure { message = context.getString(R.string.backup_read_failed, it.message.toString()) }
+        }
     }
 
-    SectionCard("Backup, export and import") {
-        MutedText("Your data lives only on this phone. Export CSV files to back it up or open it in a spreadsheet.")
+    SectionCard(stringResource(R.string.backup_title)) {
+        MutedText(stringResource(R.string.backup_intro))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ExportKind.entries.forEach { k ->
                 OutlinedButton(onClick = {
                     exporting = k
                     exportLauncher.launch("${k.fileName}-${LocalDate.now(MANILA)}.csv")
-                }) { Text("Export ${k.label.lowercase()}") }
+                }) { Text(stringResource(k.buttonRes)) }
             }
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { importTrades.launch(arrayOf("text/*", "application/vnd.ms-excel", "application/octet-stream")) }) { Text("Import trades") }
-            OutlinedButton(onClick = { importJournal.launch(arrayOf("text/*", "application/octet-stream")) }) { Text("Import journal") }
+            OutlinedButton(onClick = { importTrades.launch(arrayOf("text/*", "application/vnd.ms-excel", "application/octet-stream")) }) { Text(stringResource(R.string.backup_import_trades)) }
+            OutlinedButton(onClick = { importJournal.launch(arrayOf("text/*", "application/octet-stream")) }) { Text(stringResource(R.string.backup_import_journal)) }
         }
-        MutedText(
-            "Trade files need columns for date, buy/sell, symbol, shares and price (fees optional). Most broker CSV exports work; " +
-                "if yours doesn't, save it with the header: ${TradeCsv.HEADER.joinToString(",")}",
-        )
+        MutedText(stringResource(R.string.backup_trade_format_help, TradeCsv.HEADER.joinToString(",")))
         message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
     }
 
     pending?.let { p ->
         AlertDialog(
             onDismissRequest = { pending = null },
-            title = { Text("Import?") },
+            title = { Text(stringResource(R.string.backup_import_confirm_title)) },
             text = { Text(p.summary) },
             confirmButton = {
                 TextButton(enabled = when (p) { is PendingImport.Trades -> p.rows.isNotEmpty(); is PendingImport.Journal -> p.rows.isNotEmpty() }, onClick = {
@@ -105,24 +111,24 @@ internal fun BackupCard() {
                             is PendingImport.Trades -> {
                                 c.portfolio.addTrades(p.rows)
                                 p.rows.map { it.symbol }.distinct().forEach { c.market.ensureHistory(it) }
-                                message = "Imported ${p.rows.size} trades."
+                                message = context.getString(R.string.backup_imported_trades, p.rows.size)
                             }
                             is PendingImport.Journal -> {
                                 c.portfolio.addJournalEntries(p.rows)
-                                message = "Imported ${p.rows.size} journal entries."
+                                message = context.getString(R.string.backup_imported_journal, p.rows.size)
                             }
                         }
                     }
                     pending = null
-                }) { Text("Import") }
+                }) { Text(stringResource(R.string.backup_import)) }
             },
-            dismissButton = { TextButton(onClick = { pending = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { pending = null }) { Text(stringResource(R.string.backup_cancel)) } },
         )
     }
 }
 
 private suspend fun readText(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
-    context.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: error("empty file")
+    context.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: error(context.getString(R.string.backup_error_empty_file))
 }
 
 private suspend fun export(context: Context, c: AppContainer, kind: ExportKind, uri: Uri): String {
@@ -141,9 +147,9 @@ private suspend fun export(context: Context, c: AppContainer, kind: ExportKind, 
         }
     }
     withContext(Dispatchers.IO) {
-        context.contentResolver.openOutputStream(uri)?.use { it.write(csv.toByteArray(Charsets.UTF_8)) } ?: error("can't write the file")
+        context.contentResolver.openOutputStream(uri)?.use { it.write(csv.toByteArray(Charsets.UTF_8)) } ?: error(context.getString(R.string.backup_error_cant_write))
     }
-    return "Exported $count ${kind.label.lowercase()}."
+    return context.getString(kind.exportedRes, count)
 }
 
 private suspend fun prepareTrades(context: Context, c: AppContainer, uri: Uri): PendingImport.Trades {
@@ -153,12 +159,14 @@ private suspend fun prepareTrades(context: Context, c: AppContainer, uri: Uri): 
     val fresh = result.rows.filter { listOf(it.date.toString(), it.side, it.symbol, it.shares.toString(), it.price.toString()) !in existing }
     val rows = fresh.map { TradeEntity(symbol = it.symbol, side = it.side, shares = it.shares, price = it.price, fees = it.fees, date = it.date.toString(), note = it.note) }
     val summary = buildString {
-        append("${rows.size} new trades to add to My portfolio.")
+        append(context.getString(R.string.backup_trades_to_add, rows.size))
         val dupes = result.rows.size - fresh.size
-        if (dupes > 0) append(" $dupes already recorded will be skipped.")
+        if (dupes > 0) append(" " + context.getString(R.string.backup_trades_skipped, dupes))
         val estimated = fresh.count { it.feesEstimated }
-        if (estimated > 0) append(" Fees for $estimated trades weren't in the file and were estimated from your fee settings.")
-        if (result.errors.isNotEmpty()) append("\n\n${result.errors.size} rows couldn't be read:\n" + result.errors.take(5).joinToString("\n"))
+        if (estimated > 0) append(" " + context.getString(R.string.backup_fees_estimated, estimated))
+        if (result.errors.isNotEmpty()) {
+            append("\n\n" + context.getString(R.string.backup_rows_unreadable, result.errors.size) + "\n" + result.errors.take(5).joinToString("\n"))
+        }
     }
     return PendingImport.Trades(rows, summary)
 }
@@ -172,7 +180,7 @@ private suspend fun prepareJournal(context: Context, c: AppContainer, uri: Uri):
             lesson = it.lesson, rating = it.rating, reason = it.reason, createdAt = now,
         )
     }
-    val summary = "${rows.size} journal entries to add." +
-        if (result.errors.isNotEmpty()) "\n\n${result.errors.size} rows couldn't be read:\n" + result.errors.take(5).joinToString("\n") else ""
+    val summary = context.getString(R.string.backup_journal_to_add, rows.size) +
+        if (result.errors.isNotEmpty()) "\n\n" + context.getString(R.string.backup_rows_unreadable, result.errors.size) + "\n" + result.errors.take(5).joinToString("\n") else ""
     return PendingImport.Journal(rows, summary)
 }

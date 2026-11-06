@@ -33,11 +33,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pisotiyempo.R
 import com.pisotiyempo.data.local.TradeEntity
 import com.pisotiyempo.data.repo.MANILA
 import com.pisotiyempo.domain.ph.FeeCalculator
@@ -75,13 +77,13 @@ internal fun RealPortfolioTab(onOpenStock: (String) -> Unit, contentPadding: Pad
             item { SummaryCard(summary) }
             summary?.warnings?.takeIf { it.isNotEmpty() }?.let { warnings ->
                 item {
-                    SectionCard("Diversification check") { warnings.forEach { Text("⚠  $it", style = MaterialTheme.typography.bodyMedium) } }
+                    SectionCard(stringResource(R.string.portfolio_diversification_check)) { warnings.forEach { Text("⚠  $it", style = MaterialTheme.typography.bodyMedium) } }
                 }
             }
             summary?.takeIf { it.holdings.isNotEmpty() }?.let { s ->
                 item { SectorCard(s) }
                 item {
-                    SectionCard("Holdings") {
+                    SectionCard(stringResource(R.string.portfolio_holdings)) {
                         s.holdings.forEachIndexed { i, h ->
                             if (i > 0) HorizontalDivider()
                             HoldingRow(h, onClick = { onOpenStock(h.symbol) })
@@ -94,27 +96,27 @@ internal fun RealPortfolioTab(onOpenStock: (String) -> Unit, contentPadding: Pad
             val upcoming = dividends.filter { it.symbol in held && it.exDate >= today }
             if (upcoming.isNotEmpty()) {
                 item {
-                    SectionCard("Upcoming dividends") {
+                    SectionCard(stringResource(R.string.portfolio_upcoming_dividends)) {
                         upcoming.sortedBy { it.exDate }.forEach { d ->
                             Column {
                                 Text("${d.symbol} · ${d.amount?.let { Fmt.peso(it) } ?: d.rateText} (${d.type.lowercase()})", style = MaterialTheme.typography.bodyMedium)
-                                MutedText("Own it before ${d.exDate} to qualify · pays ${d.paymentDate ?: "—"}")
+                                MutedText(stringResource(R.string.portfolio_dividend_qualify, d.exDate, d.paymentDate ?: "—"))
                             }
                         }
                     }
                 }
             }
             item {
-                SectionCard("Trade history") {
-                    if (trades.isEmpty()) MutedText("No trades yet. Tap “Add trade” to record a buy or sell from your broker.")
+                SectionCard(stringResource(R.string.portfolio_trade_history)) {
+                    if (trades.isEmpty()) MutedText(stringResource(R.string.portfolio_no_trades))
                     trades.forEachIndexed { i, t ->
                         if (i > 0) HorizontalDivider()
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
-                                Text("${t.side} ${t.symbol}", fontWeight = FontWeight.SemiBold, color = changeColor(if (t.side == "BUY") 1.0 else -1.0))
-                                MutedText("${t.date} · ${Fmt.shares(t.shares)} @ ${Fmt.peso(t.price)} · fees ${Fmt.peso(t.fees)}")
+                                Text("${tradeSideLabel(t.side)} ${t.symbol}", fontWeight = FontWeight.SemiBold, color = changeColor(if (t.side == "BUY") 1.0 else -1.0))
+                                MutedText(stringResource(R.string.portfolio_trade_line, t.date, Fmt.shares(t.shares), Fmt.peso(t.price), Fmt.peso(t.fees)))
                             }
-                            IconButton(onClick = { scope.launch { c.portfolio.deleteTrade(t.id) } }) { Icon(Icons.Filled.Delete, "Delete trade") }
+                            IconButton(onClick = { scope.launch { c.portfolio.deleteTrade(t.id) } }) { Icon(Icons.Filled.Delete, stringResource(R.string.portfolio_delete_trade)) }
                         }
                     }
                 }
@@ -124,34 +126,42 @@ internal fun RealPortfolioTab(onOpenStock: (String) -> Unit, contentPadding: Pad
         ExtendedFloatingActionButton(
             onClick = { adding = true },
             icon = { Icon(Icons.Filled.Add, null) },
-            text = { Text("Add trade") },
+            text = { Text(stringResource(R.string.portfolio_add_trade)) },
             modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = contentPadding.calculateBottomPadding() + 16.dp),
         )
     }
     if (adding) AddTradeDialog(onDismiss = { adding = false })
 }
 
+/** Visible name of a trade side; the database keeps "BUY" / "SELL". */
+@Composable
+internal fun tradeSideLabel(side: String): String = when (side) {
+    "BUY" -> stringResource(R.string.portfolio_side_buy)
+    "SELL" -> stringResource(R.string.portfolio_side_sell)
+    else -> side
+}
+
 @Composable
 private fun SummaryCard(s: PortfolioSummary?) {
-    SectionCard("Portfolio") {
+    SectionCard(stringResource(R.string.portfolio_title)) {
         Text(Fmt.peso(s?.marketValue ?: 0.0), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         if (s == null) return@SectionCard
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LabeledValue("Cost basis", Fmt.peso(s.costBasis))
-            LabeledValue("Unrealized", "${Fmt.signedPeso(s.unrealizedPnl)} (${Fmt.pct(s.unrealizedPct)})", valueColor = changeColor(s.unrealizedPnl))
+            LabeledValue(stringResource(R.string.portfolio_cost_basis), Fmt.peso(s.costBasis))
+            LabeledValue(stringResource(R.string.portfolio_unrealized), "${Fmt.signedPeso(s.unrealizedPnl)} (${Fmt.pct(s.unrealizedPct)})", valueColor = changeColor(s.unrealizedPnl))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LabeledValue("Today", Fmt.signedPeso(s.dayChange), valueColor = changeColor(s.dayChange))
-            LabeledValue("Realized", Fmt.signedPeso(s.realizedPnl), valueColor = changeColor(s.realizedPnl))
-            LabeledValue("Dividends (net of 10% tax)", Fmt.peso(s.dividendsReceived))
+            LabeledValue(stringResource(R.string.portfolio_today), Fmt.signedPeso(s.dayChange), valueColor = changeColor(s.dayChange))
+            LabeledValue(stringResource(R.string.portfolio_realized), Fmt.signedPeso(s.realizedPnl), valueColor = changeColor(s.realizedPnl))
+            LabeledValue(stringResource(R.string.portfolio_dividends_net), Fmt.peso(s.dividendsReceived))
         }
-        MutedText("Average-cost method; buy fees are included in cost, sell fees and taxes in realized profit.")
+        MutedText(stringResource(R.string.portfolio_average_cost_note))
     }
 }
 
 @Composable
 private fun SectorCard(s: PortfolioSummary) {
-    SectionCard("Sector mix") {
+    SectionCard(stringResource(R.string.portfolio_sector_mix)) {
         s.sectorWeights.entries.sortedByDescending { it.value }.forEach { (sector, w) ->
             Row {
                 Text(sector, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
@@ -166,7 +176,7 @@ private fun HoldingRow(h: Holding, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             TextButton(onClick = onClick, contentPadding = PaddingValues(0.dp)) { Text(h.symbol, fontWeight = FontWeight.Bold) }
-            MutedText("${Fmt.shares(h.shares)} sh · avg ${Fmt.peso(h.avgCost)} · ${h.sector}")
+            MutedText(stringResource(R.string.portfolio_holding_line, Fmt.shares(h.shares), Fmt.peso(h.avgCost), h.sector))
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(Fmt.peso(h.marketValue), style = MaterialTheme.typography.bodyMedium)
@@ -196,31 +206,36 @@ fun AddTradeDialog(initialSymbol: String = "", initialPrice: Double? = null, onD
     val autoFees = if (qty != null && px != null && qty > 0 && px > 0) {
         (if (side == Side.BUY) FeeCalculator.buy(qty, px, schedule) else FeeCalculator.sell(qty, px, schedule)).totalFees
     } else null
+    val errSymbol = stringResource(R.string.portfolio_error_symbol)
+    val errShares = stringResource(R.string.portfolio_error_shares)
+    val errPrice = stringResource(R.string.portfolio_error_price)
+    val errDate = stringResource(R.string.portfolio_error_date)
+    val errFees = stringResource(R.string.portfolio_error_fees)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Record trade") },
+        title = { Text(stringResource(R.string.portfolio_record_trade)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                     Side.entries.forEachIndexed { i, s ->
-                        SegmentedButton(selected = side == s, onClick = { side = s }, shape = SegmentedButtonDefaults.itemShape(i, Side.entries.size)) { Text(s.name) }
+                        SegmentedButton(selected = side == s, onClick = { side = s }, shape = SegmentedButtonDefaults.itemShape(i, Side.entries.size)) { Text(tradeSideLabel(s.name)) }
                     }
                 }
-                OutlinedTextField(symbol, { symbol = it.uppercase().trim() }, label = { Text("Symbol") }, singleLine = true,
+                OutlinedTextField(symbol, { symbol = it.uppercase().trim() }, label = { Text(stringResource(R.string.portfolio_symbol)) }, singleLine = true,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters))
-                OutlinedTextField(shares, { shares = it.filter(Char::isDigit) }, label = { Text("Shares") }, singleLine = true,
+                OutlinedTextField(shares, { shares = it.filter(Char::isDigit) }, label = { Text(stringResource(R.string.portfolio_shares)) }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                OutlinedTextField(price, { price = it }, label = { Text("Price (₱)") }, singleLine = true,
+                OutlinedTextField(price, { price = it }, label = { Text(stringResource(R.string.portfolio_price)) }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-                OutlinedTextField(date, { date = it }, label = { Text("Date (YYYY-MM-DD)") }, singleLine = true)
-                OutlinedTextField(feesText, { feesText = it }, label = { Text("Fees and taxes (₱)") }, singleLine = true,
-                    placeholder = { Text(autoFees?.let { Fmt.num(it) } ?: "auto") },
+                OutlinedTextField(date, { date = it }, label = { Text(stringResource(R.string.portfolio_date)) }, singleLine = true)
+                OutlinedTextField(feesText, { feesText = it }, label = { Text(stringResource(R.string.portfolio_fees_and_taxes)) }, singleLine = true,
+                    placeholder = { Text(autoFees?.let { Fmt.num(it) } ?: stringResource(R.string.portfolio_fees_auto)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
                 if (qty != null && px != null && px > 0 && !PseRules.isValidQuantity(qty, px)) {
-                    MutedText("Board lot at this price is ${PseRules.boardLot(px)} shares; ${Fmt.shares(qty)} is an odd lot.")
+                    MutedText(stringResource(R.string.portfolio_odd_lot, PseRules.boardLot(px).toString(), Fmt.shares(qty)))
                 }
-                autoFees?.let { MutedText("Estimated fees ${Fmt.peso(it)} with your fee settings. Leave blank to use this.") }
+                autoFees?.let { MutedText(stringResource(R.string.portfolio_estimated_fees, Fmt.peso(it))) }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
         },
@@ -229,11 +244,11 @@ fun AddTradeDialog(initialSymbol: String = "", initialPrice: Double? = null, onD
                 val parsedDate = try { LocalDate.parse(date) } catch (e: DateTimeParseException) { null }
                 val fees = feesText.toDoubleOrNull() ?: autoFees
                 val problem = when {
-                    !Regex("^[A-Z0-9]{1,8}$").matches(symbol) -> "Enter a valid PSE symbol."
-                    qty == null || qty <= 0 -> "Enter the number of shares."
-                    px == null || px <= 0 -> "Enter the price."
-                    parsedDate == null || parsedDate.isAfter(LocalDate.now(MANILA)) -> "Enter a valid date, not in the future."
-                    fees == null || fees < 0 -> "Enter the fees."
+                    !Regex("^[A-Z0-9]{1,8}$").matches(symbol) -> errSymbol
+                    qty == null || qty <= 0 -> errShares
+                    px == null || px <= 0 -> errPrice
+                    parsedDate == null || parsedDate.isAfter(LocalDate.now(MANILA)) -> errDate
+                    fees == null || fees < 0 -> errFees
                     else -> null
                 }
                 if (problem != null) {
@@ -246,8 +261,8 @@ fun AddTradeDialog(initialSymbol: String = "", initialPrice: Double? = null, onD
                         onDismiss()
                     }
                 }
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.portfolio_save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.portfolio_cancel)) } },
     )
 }

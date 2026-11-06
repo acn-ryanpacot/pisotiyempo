@@ -16,6 +16,7 @@ To show prices and analysis, the app contacts our backend at [your Worker domain
 
 - **Market data requests:** the stock symbols you view. These requests contain no personal information.
 - **AI analysis requests:** a stock's symbol and the technical indicators the app computed for it (prices, indicator values, detected patterns). Your portfolio, quantities and trade history are never included.
+- **Journal coaching (only if you tap "Get AI coaching" and confirm):** your latest journal notes, including what you wrote, and your closed-trade results (symbol, date, percent gain or loss, days held). Share quantities and peso amounts are not sent. The notes are passed to Anthropic's Claude to write your review and are not stored by our server.
 - **Disclosure summaries:** the ID of the public PSE disclosure you asked to summarize.
 - **App verification:** a random ID created when you install the app, plus a Google Play Integrity token that confirms the app is genuine and unmodified. The ID is not linked to your name, account or device identifiers.
 - **Premium:** if you subscribe, the Google Play purchase token, so our server can confirm your subscription with Google. We don't receive your payment details.
@@ -26,6 +27,10 @@ Our backend runs on Cloudflare Workers. Cloudflare may process standard request 
 
 - **Anthropic (Claude API):** receives the technical features described above, to write analysis text. Anthropic does not receive any information that identifies you. See https://www.anthropic.com/legal/privacy.
 - **Market data providers** (EODHD, PSE Edge, phisix, Yahoo Finance): contacted by our backend, or by the app directly when the backend is unreachable, to fetch public market data.
+
+## On your phone
+
+Your data is stored in an encrypted database. You can optionally require your fingerprint, face or screen-lock PIN to open the app (Settings > App lock). CSV exports you create are saved where you choose and are not encrypted.
 
 ## Your own EODHD key
 

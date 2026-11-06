@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Filipino. Trading terms Filipino investors normally say in English (support, resistance, entry, stop, target) stay in English. -->
+<resources>
+    <!-- StockDetailScreen -->
+    <string name="stock_back">Bumalik</string>
+    <string name="stock_add_alert">Magdagdag ng alert</string>
+    <string name="stock_remove_from_watchlist">Alisin sa watchlist</string>
+    <string name="stock_add_to_watchlist">Idagdag sa watchlist</string>
+    <string name="stock_not_enough_history">Kulang pa ang price history para ma-analyze ang %1$s (kailangan ng hindi bababa sa 30 trading days).</string>
+    <string name="stock_as_of">Noong %1$s</string>
+    <string name="stock_level_support_short">S</string>
+    <string name="stock_level_resistance_short">R</string>
+    <string name="stock_loading_history">Kinukuha ang price history…</string>
+    <string name="stock_close_only_note">Closing price lang ang laman ng bagong data (fallback source), kaya puwedeng mukhang patag ang mga candle.</string>
+    <string name="stock_technical_score">Technical score</string>
+    <string name="stock_score_range">Mula -100 (malakas na benta) hanggang +100 (malakas na bili)</string>
+    <string name="stock_low_liquidity">Mababa ang liquidity: %1$s ang average na halagang na-trade kada araw. Hindi isinasama sa mga buy suggestion.</string>
+    <string name="stock_ai_analysis">Pagsusuri ng AI</string>
+    <string name="stock_writing_analysis">Isinusulat ang pagsusuri…</string>
+    <string name="stock_bull_case">Bull case</string>
+    <string name="stock_bear_case">Bear case</string>
+    <string name="stock_key_levels">Mahahalagang level</string>
+    <string name="stock_risk">Panganib</string>
+    <string name="stock_stance_confidence">Rekomendasyon: %1$s · kumpiyansa %2$d%%</string>
+    <string name="stock_patterns_detected">Mga nakitang pattern</string>
+    <string name="stock_no_patterns">Walang kapansin-pansing pattern sa ngayon.</string>
+    <string name="stock_pattern_forming">nabubuo pa</string>
+    <string name="stock_pattern_target">Target %1$s</string>
+    <string name="stock_pattern_invalid_beyond">Invalid kapag lumampas sa %1$s</string>
+    <string name="stock_pattern_confidence">Kumpiyansa %1$d%%</string>
+    <string name="stock_indicators">Mga indicator</string>
+    <string name="stock_levels_title">Support, resistance at Fibonacci</string>
+    <string name="stock_support">Support</string>
+    <string name="stock_resistance">Resistance</string>
+    <string name="stock_none_nearby">Wala sa malapit</string>
+    <string name="stock_fib_retracements">Fibonacci retracement (huling swing)</string>
+    <string name="stock_backtest_title">Paano gumana ang mga signal na ito sa %1$s</string>
+    <string name="stock_backtest_not_enough">Kulang pa ang history para ma-backtest.</string>
+    <string name="stock_backtest_explainer">Bawat nakaraang signal, makalipas ang %1$d trading days. Win = gumalaw ang presyo sa inaasahang direksyon.</string>
+    <string name="stock_backtest_signal">Signal</string>
+    <string name="stock_backtest_times">Beses</string>
+    <string name="stock_backtest_win_pct" formatted="false">Win %</string>
+    <string name="stock_backtest_avg_move">Avg na galaw</string>
+    <string name="stock_backtest_caveat">Hindi maaasahan ang maliliit na sample (wala pang 5). Hindi garantiya ang nakaraang resulta sa susunod na galaw.</string>
+    <string name="stock_trade_plan">Trade plan (long)</string>
+    <string name="stock_trade_plan_not_enough">Kulang ang data para sa trade plan.</string>
+    <string name="stock_plan_entry">Entry</string>
+    <string name="stock_plan_stop">Stop</string>
+    <string name="stock_plan_target">Target</string>
+    <string name="stock_plan_reward_risk">Reward:risk</string>
+    <string name="stock_plan_capital_too_small">Hindi kasya ang kapital mong %1$s sa isang board lot (%2$d shares, %3$s) ayon sa iyong risk settings.</string>
+    <string name="stock_plan_sizing_one_lot">Sa risk na %1$s%% ng %2$s: bumili ng %3$s shares (%4$d board lot na tig-%5$d) sa halagang %6$s kasama ang fees.</string>
+    <string name="stock_plan_sizing_lots">Sa risk na %1$s%% ng %2$s: bumili ng %3$s shares (%4$d board lot na tig-%5$d) sa halagang %6$s kasama ang fees.</string>
+    <string name="stock_plan_max_loss">Pinakamalaking lugi sa stop ≈ %1$s dagdag ang fees. Break-even matapos ang lahat ng fees at buwis: %2$s.</string>
+    <string name="stock_plan_capped_by_capital">Nilimitahan ang posisyon ng available na kapital.</string>
+    <string name="stock_record_trade">Itala ang trade</string>
+    <string name="stock_practice_trade">Practice trade</string>
+    <string name="stock_dividends">Mga dibidendo</string>
+    <string name="stock_no_dividends">Walang nakitang history ng dibidendo.</string>
+    <string name="stock_div_type_cash">Cash</string>
+    <string name="stock_div_type_stock">Stock</string>
+    <string name="stock_div_type_property">Property</string>
+    <string name="stock_div_type_other">Iba pa</string>
+    <string name="stock_div_dates">Ex-date %1$s · Bayad %2$s</string>
+    <string name="stock_disclosures">Mga disclosure ng kumpanya (PSE Edge)</string>
+    <string name="stock_no_disclosures">Walang bagong disclosure.</string>
+    <string name="stock_impact_positive">positibo</string>
+    <string name="stock_impact_negative">negatibo</string>
+    <string name="stock_impact_neutral">neutral</string>
+    <string name="stock_ai_impact">AI: %1$s</string>
+    <string name="stock_open">Buksan</string>
+    <string name="stock_summarizing">Binubuod…</string>
+    <string name="stock_ai_summary">Buod ng AI</string>
+
+    <!-- ScreenerScreen -->
+    <string name="screener_title">Screener</string>
+    <string name="screener_back">Bumalik</string>
+    <string name="screener_hide_filters">Itago ang filter</string>
+    <string name="screener_filters">Mga filter</string>
+    <string name="screener_custom_scan">Custom na scan</string>
+    <string name="screener_sort">Ayusin:</string>
+    <string name="screener_match_count">%1$d sa %2$d na na-analyze na stock ang tugma. Araw-araw ina-analyze ng app ang 120 pinaka-tinetrade na PSE stock, pati ang iyong holdings at watchlist.</string>
+    <string name="screener_empty">Wala pang ma-screen. Lalabas ang resulta pagkatapos ng unang daily sync.</string>
+    <string name="screener_sectors">Mga sektor</string>
+    <string name="screener_rating">Rating</string>
+    <string name="screener_trend">Trend</string>
+    <string name="screener_above_50_day">Lampas sa 50-day</string>
+    <string name="screener_above_200_day">Lampas sa 200-day</string>
+    <string name="screener_patterns">Mga pattern</string>
+    <string name="screener_pattern_name_hint">May salitang ito sa pangalan ng pattern (hal. flag, double bottom)</string>
+    <string name="screener_min_score">Min na iskor</string>
+    <string name="screener_max_score">Max na iskor</string>
+    <string name="screener_min_rsi">Min RSI</string>
+    <string name="screener_max_rsi">Max RSI</string>
+    <string name="screener_min_volume_ratio">Min volume × avg</string>
+    <string name="screener_min_return_3m" formatted="false">Min 3M return %</string>
+    <string name="screener_liquid_only">Liquid na stock lang</string>
+    <string name="screener_liquid_only_desc">Hindi bababa sa ₱2M ang average na na-trade kada araw</string>
+    <string name="screener_clear_filters">I-clear ang lahat ng filter</string>
+    <string name="screener_fundamentals_note">Kailangan ng P/E at dividend-yield filter ang fundamentals data ng EODHD, na hindi ginagamit ng bersyong ito.</string>
+    <string name="screener_tri_yes">%1$s: oo</string>
+    <string name="screener_tri_no">%1$s: hindi</string>
+</resources>

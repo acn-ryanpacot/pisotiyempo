@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -25,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pisotiyempo.AppContainer
+import com.pisotiyempo.R
 import com.pisotiyempo.data.repo.MarketStatsCalc
 import com.pisotiyempo.data.settings.Settings
 import com.pisotiyempo.domain.analysis.MarketBrief
@@ -44,6 +46,7 @@ import com.pisotiyempo.ui.common.StanceBadge
 import com.pisotiyempo.ui.common.StockRow
 import com.pisotiyempo.ui.common.appContainer
 import com.pisotiyempo.ui.common.changeColor
+import com.pisotiyempo.ui.common.moodLabel
 import com.pisotiyempo.work.SyncService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -147,8 +150,8 @@ fun DashboardScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
         item { BriefCard(brief) }
         item {
             SuggestionCard(
-                title = "Top 5 buy ideas",
-                empty = if (state.hasData) "No liquid stock scores 20 or higher today. Sitting out is a position too." else "Waiting for the first sync…",
+                title = stringResource(R.string.dashboard_top_buys),
+                empty = if (state.hasData) stringResource(R.string.dashboard_no_buys) else stringResource(R.string.dashboard_waiting_first_sync),
                 rows = state.buys,
                 reasons = reasons,
                 tagFor = { null },
@@ -156,16 +159,19 @@ fun DashboardScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
             )
         }
         item {
+            val tagOwn = stringResource(R.string.dashboard_tag_you_own)
+            val tagWatch = stringResource(R.string.dashboard_tag_watchlist)
+            val tagAvoid = stringResource(R.string.dashboard_tag_avoid)
             SuggestionCard(
-                title = "Top 5 sell signals",
-                empty = if (state.hasData) "Nothing you own or watch is flashing a sell. Add holdings or a watchlist to get personal sell signals." else "Waiting for the first sync…",
+                title = stringResource(R.string.dashboard_top_sells),
+                empty = if (state.hasData) stringResource(R.string.dashboard_no_sells) else stringResource(R.string.dashboard_waiting_first_sync),
                 rows = state.sells,
                 reasons = reasons,
                 tagFor = { s ->
                     when (s.symbol) {
-                        in state.holdings -> "You own"
-                        in state.watchlist -> "Watchlist"
-                        else -> "Avoid"
+                        in state.holdings -> tagOwn
+                        in state.watchlist -> tagWatch
+                        else -> tagAvoid
                     }
                 },
                 onOpenStock = onOpenStock,
@@ -178,14 +184,14 @@ fun DashboardScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
 @Composable
 private fun SyncStatus(state: DashboardState, closedToday: String?, onSync: () -> Unit) {
     Column {
-        closedToday?.let { MutedText(if (it == "Weekend") "PSE is closed for the weekend." else "PSE is closed today: $it.") }
+        closedToday?.let { MutedText(if (it == "Weekend") stringResource(R.string.dashboard_closed_weekend) else stringResource(R.string.dashboard_closed_today, it)) }
         Row(verticalAlignment = Alignment.CenterVertically) {
             val s = state.settings
             MutedText(
-                state.syncProgress ?: (s.lastSyncDate?.let { "Prices as of $it · ${s.lastSyncSource ?: ""}" } ?: "Not synced yet"),
+                state.syncProgress ?: (s.lastSyncDate?.let { stringResource(R.string.dashboard_prices_as_of, it, s.lastSyncSource ?: "") } ?: stringResource(R.string.dashboard_not_synced)),
                 Modifier.weight(1f),
             )
-            TextButton(onClick = onSync, enabled = state.syncProgress == null) { Text("Sync now") }
+            TextButton(onClick = onSync, enabled = state.syncProgress == null) { Text(stringResource(R.string.dashboard_sync_now)) }
         }
         if (state.syncProgress != null) LinearProgressIndicator(Modifier.fillMaxWidth())
         state.settings.lastSyncMessage?.takeIf { it.startsWith("Sync failed") }?.let { MutedText(it) }
@@ -194,42 +200,42 @@ private fun SyncStatus(state: DashboardState, closedToday: String?, onSync: () -
 
 @Composable
 private fun PortfolioCard(p: PortfolioSummary?) {
-    SectionCard("Portfolio value") {
+    SectionCard(stringResource(R.string.dashboard_portfolio_value)) {
         if (p == null || p.holdings.isEmpty()) {
             Text(Fmt.peso(0.0), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            MutedText("Add your trades in the Portfolio tab to track value, profit and dividends.")
+            MutedText(stringResource(R.string.dashboard_portfolio_empty))
             return@SectionCard
         }
         Text(Fmt.peso(p.marketValue), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LabeledValue("Today", "${Fmt.signedPeso(p.dayChange)} (${Fmt.pct(p.dayChangePct)})", valueColor = changeColor(p.dayChange))
-            LabeledValue("Unrealized", "${Fmt.signedPeso(p.unrealizedPnl)} (${Fmt.pct(p.unrealizedPct)})", valueColor = changeColor(p.unrealizedPnl))
+            LabeledValue(stringResource(R.string.dashboard_today), "${Fmt.signedPeso(p.dayChange)} (${Fmt.pct(p.dayChangePct)})", valueColor = changeColor(p.dayChange))
+            LabeledValue(stringResource(R.string.dashboard_unrealized), "${Fmt.signedPeso(p.unrealizedPnl)} (${Fmt.pct(p.unrealizedPct)})", valueColor = changeColor(p.unrealizedPnl))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LabeledValue("Realized", Fmt.signedPeso(p.realizedPnl), valueColor = changeColor(p.realizedPnl))
-            LabeledValue("Dividends (net)", Fmt.peso(p.dividendsReceived))
-            LabeledValue("Holdings", p.holdings.size.toString())
+            LabeledValue(stringResource(R.string.dashboard_realized), Fmt.signedPeso(p.realizedPnl), valueColor = changeColor(p.realizedPnl))
+            LabeledValue(stringResource(R.string.dashboard_dividends_net), Fmt.peso(p.dividendsReceived))
+            LabeledValue(stringResource(R.string.dashboard_holdings), p.holdings.size.toString())
         }
     }
 }
 
 @Composable
 private fun BriefCard(brief: MarketBrief?) {
-    SectionCard("Market brief", trailing = { brief?.let { SourceBadge(it.source) } }) {
+    SectionCard(stringResource(R.string.dashboard_market_brief), trailing = { brief?.let { SourceBadge(it.source) } }) {
         if (brief == null) {
-            MutedText("The daily brief appears after the first sync.")
+            MutedText(stringResource(R.string.dashboard_brief_empty))
             return@SectionCard
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val color = when (brief.mood) { "BULLISH" -> changeColor(1.0); "BEARISH" -> changeColor(-1.0); else -> changeColor(0.0) }
-            Pill(brief.mood.lowercase().replaceFirstChar { it.uppercase() }, color.copy(alpha = 0.15f), color)
+            Pill(moodLabel(brief.mood), color.copy(alpha = 0.15f), color)
             MutedText(brief.date)
         }
         Text(brief.headline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(brief.overview, style = MaterialTheme.typography.bodyMedium)
         if (brief.highlights.isNotEmpty()) Bullets(brief.highlights.take(4))
         if (brief.watchTomorrow.isNotEmpty()) {
-            Text("Watch next session", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.dashboard_watch_next_session), style = MaterialTheme.typography.labelLarge)
             Bullets(brief.watchTomorrow.take(3))
         }
     }
@@ -267,6 +273,6 @@ private fun SuggestionCard(
                 onClick = { onOpenStock(s.symbol) },
             )
         }
-        if (reasons.values.any { it.source != NarrativeSource.RULES }) MutedText("Reasons written by Claude from the engine's signals.")
+        if (reasons.values.any { it.source != NarrativeSource.RULES }) MutedText(stringResource(R.string.dashboard_reasons_by_claude))
     }
 }

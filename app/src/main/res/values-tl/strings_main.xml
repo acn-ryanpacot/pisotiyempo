@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Filipino. Trading terms Filipino investors normally say in English (stock, portfolio, watchlist, board lot, tick) stay in English. -->
+<resources>
+    <!-- Shared -->
+    <string name="common_disclaimer_short">Para sa edukasyon lamang, hindi payo sa pamumuhunan. Ang Piso Tiyempo ay hindi lisensyadong broker o investment adviser. Maaaring naantala o hindi tumpak ang data.</string>
+    <string name="common_save">I-save</string>
+    <string name="common_cancel">Kanselahin</string>
+    <string name="common_back">Bumalik</string>
+    <string name="common_price_peso">Presyo (₱)</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_market">Merkado</string>
+    <string name="nav_portfolio">Portfolio</string>
+    <string name="nav_watchlist">Watchlist</string>
+    <string name="nav_tools">Kagamitan</string>
+    <string name="nav_search_stocks">Maghanap ng stock</string>
+    <string name="nav_settings">Mga Setting</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_top_buys">Top 5 na ideya sa pagbili</string>
+    <string name="dashboard_no_buys">Walang liquid na stock na may iskor na 20 pataas ngayon. Diskarte rin ang hindi muna pumasok.</string>
+    <string name="dashboard_waiting_first_sync">Hinihintay ang unang sync…</string>
+    <string name="dashboard_top_sells">Top 5 na sell signal</string>
+    <string name="dashboard_no_sells">Walang sell signal sa mga hawak o binabantayan mo. Magdagdag ng holdings o watchlist para makakuha ng sariling sell signal.</string>
+    <string name="dashboard_tag_you_own">Hawak mo</string>
+    <string name="dashboard_tag_watchlist">Watchlist</string>
+    <string name="dashboard_tag_avoid">Iwasan</string>
+    <string name="dashboard_closed_weekend">Sarado ang PSE ngayong weekend.</string>
+    <string name="dashboard_closed_today">Sarado ang PSE ngayon: %1$s.</string>
+    <string name="dashboard_prices_as_of">Presyo noong %1$s · %2$s</string>
+    <string name="dashboard_not_synced">Hindi pa naka-sync</string>
+    <string name="dashboard_sync_now">I-sync ngayon</string>
+    <string name="dashboard_portfolio_value">Halaga ng portfolio</string>
+    <string name="dashboard_portfolio_empty">Idagdag ang mga trade mo sa Portfolio tab para masubaybayan ang halaga, kita at dibidendo.</string>
+    <string name="dashboard_today">Ngayon</string>
+    <string name="dashboard_unrealized">Unrealized</string>
+    <string name="dashboard_realized">Realized</string>
+    <string name="dashboard_dividends_net">Dibidendo (net)</string>
+    <string name="dashboard_holdings">Holdings</string>
+    <string name="dashboard_market_brief">Buod ng merkado</string>
+    <string name="dashboard_brief_empty">Lalabas ang pang-araw-araw na buod pagkatapos ng unang sync.</string>
+    <string name="dashboard_watch_next_session">Bantayan sa susunod na session</string>
+    <string name="dashboard_reasons_by_claude">Isinulat ni Claude ang mga dahilan batay sa mga signal ng engine.</string>
+
+    <!-- Market -->
+    <string name="market_screener_title">Stock screener</string>
+    <string name="market_open">Buksan</string>
+    <string name="market_screener_desc">Hanapin ang mga uptrend, oversold bounce, breakout at volume surge sa mga stock na sinusuri ng app.</string>
+    <string name="market_psei_history_note">Unti-unting nabubuo araw-araw ang kasaysayan ng index kapag hindi available ang pangunahing data source.</string>
+    <string name="market_prices_as_of_source">Presyo noong %1$s · pinagmulan: %2$s</string>
+    <string name="market_breadth">Market breadth</string>
+    <string name="market_available_after_sync">Available pagkatapos ng unang sync.</string>
+    <string name="market_advancers">Tumaas</string>
+    <string name="market_decliners">Bumaba</string>
+    <string name="market_unchanged">Walang galaw</string>
+    <string name="market_value_traded">Halagang na-trade</string>
+    <string name="market_breadth_rose_pct">%1$s%% ng mga na-trade na stock ang tumaas.</string>
+    <string name="market_sector_performance">Galaw ng mga sektor</string>
+    <string name="market_sector_count_value">%1$d stock · %2$s</string>
+    <string name="market_sector_note">Value-weighted na average na galaw ng mga stock sa bawat sektor, kinukuwenta sa app.</string>
+    <string name="market_foreign_flow">Pagbili / pagbenta ng foreign</string>
+    <string name="market_foreign_flow_unavailable">Hindi pa available. Inilalathala ng PSE ang foreign flow sa mga ulat na hindi puwedeng ipamahagi nang walang pahintulot nito, kaya kailangan ng lisensyadong feed na nakakonekta sa backend.</string>
+    <string name="market_net">Net</string>
+    <string name="market_buying">Pagbili</string>
+    <string name="market_selling">Pagbenta</string>
+    <string name="market_as_of">Noong %1$s</string>
+    <string name="market_gainers">Pinakatumaas</string>
+    <string name="market_losers">Pinakabumaba</string>
+    <string name="market_most_active">Pinakaaktibo</string>
+    <string name="market_top_movers">Top movers</string>
+    <string name="market_liquid_note">Kasama lang sa ranking ang mga stock na may hindi bababa sa %1$s na na-trade.</string>
+
+    <!-- Watchlist / disclosures -->
+    <string name="watchlist_tab_watchlist">Watchlist</string>
+    <string name="watchlist_tab_alerts">Alert</string>
+    <string name="watchlist_tab_disclosures">Disclosure</string>
+    <string name="watchlist_empty">I-tap ang bituin sa kahit anong stock para idagdag dito. Maghanap mula sa itaas na bar.</string>
+    <string name="watchlist_remove">Alisin</string>
+    <string name="watchlist_disclosures_empty">Lalabas dito ang mga disclosure ng mga hawak mo at ng watchlist pagkatapos ng sync.</string>
+
+    <!-- Alerts -->
+    <string name="alerts_empty">Wala pang alert. Magbukas ng stock at i-tap ang kampana para magdagdag. Sinusuri ang mga alert pagkatapos ng bawat araw-araw na sync.</string>
+    <string name="alerts_last_fired">Huling nag-trigger: %1$s</string>
+    <string name="alerts_delete">Burahin ang alert</string>
+    <string name="alerts_dialog_title">Alert para sa %1$s</string>
+    <string name="alerts_checked_note">Sinusuri batay sa closing price pagkatapos ng bawat araw-araw na sync.</string>
+    <string name="alerts_enter_price">Maglagay ng presyo.</string>
+
+    <!-- Tools -->
+    <string name="tools_fee_calc_title">Calculator ng fee at break-even</string>
+    <string name="tools_buy">Bili</string>
+    <string name="tools_sell">Benta</string>
+    <string name="tools_shares">Shares</string>
+    <string name="tools_enter_shares_price">Ilagay ang shares at presyo.</string>
+    <string name="tools_odd_lot">Ang board lot sa ₱%1$s ay %2$d shares; odd lot ito.</string>
+    <string name="tools_break_even_price">Break-even na presyo ng benta: %1$s (%2$s)</string>
+    <string name="tools_break_even_note">Ang pinakamababang valid na tick kung saan sakop ng benta ang pinambili, lahat ng fee at ang sales tax.</string>
+    <string name="tools_gross_amount">Gross na halaga</string>
+    <string name="tools_broker_commission">Broker commission</string>
+    <string name="tools_vat_on_commission" formatted="false">VAT sa commission (12%)</string>
+    <string name="tools_pse_fee">PSE transaction fee</string>
+    <string name="tools_sccp_fee">SCCP fee</string>
+    <string name="tools_sales_tax">Stock transaction tax</string>
+    <string name="tools_you_receive">Matatanggap mo</string>
+    <string name="tools_total_cost">Kabuuang gastos</string>
+    <string name="tools_total_fees">Kabuuang fee %1$s (%2$s ng gross)</string>
+    <string name="tools_position_size_title">Calculator ng laki ng position</string>
+    <string name="tools_capital">Kapital (₱)</string>
+    <string name="tools_risk_per_trade" formatted="false">Risk bawat trade (%)</string>
+    <string name="tools_entry">Entry (₱)</string>
+    <string name="tools_stop_loss">Stop loss (₱)</string>
+    <string name="tools_enter_position_inputs">Ilagay ang kapital, risk, entry at stop.</string>
+    <string name="tools_stop_below_entry">Dapat mas mababa ang stop kaysa sa entry price.</string>
+    <string name="tools_one_lot_too_big">Ang isang board lot (%1$d shares) ay nagkakahalaga ng %2$s: higit sa kayang ibigay ng risk budget o kapital na ito.</string>
+    <string name="tools_board_lots">Mga board lot</string>
+    <string name="tools_cost_with_fees">Gastos kasama ang fee</string>
+    <string name="tools_loss_if_stopped">Lugi kapag na-stop out ≈ %1$s, dagdag pa ang fee.</string>
+    <string name="tools_capped_by_capital">Nilimitahan ng kapital mo.</string>
+    <string name="tools_board_lot_title">Board lot at tick size</string>
+    <string name="tools_board_lot_hint">Maglagay ng presyo para makita ang pinakamaliit na order at ang hakbang ng presyo.</string>
+    <string name="tools_board_lot">Board lot</string>
+    <string name="tools_n_shares">%1$s shares</string>
+    <string name="tools_tick_size">Tick size</string>
+    <string name="tools_min_buy">Min. na bili</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">Symbol o pangalan ng kompanya</string>
+    <string name="search_no_matches">Walang tugma. Lalabas ang mga stock pagkatapos ng unang sync.</string>
+</resources>

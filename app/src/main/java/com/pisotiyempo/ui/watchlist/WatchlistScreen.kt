@@ -36,15 +36,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pisotiyempo.R
 import com.pisotiyempo.data.repo.AlertKind
 import com.pisotiyempo.ui.common.Fmt
 import com.pisotiyempo.ui.common.MutedText
 import com.pisotiyempo.ui.common.StanceBadge
 import com.pisotiyempo.ui.common.StockRow
+import com.pisotiyempo.ui.common.alertKindLabel
 import com.pisotiyempo.ui.common.appContainer
 import kotlinx.coroutines.launch
 
@@ -64,14 +67,18 @@ fun WatchlistScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
 
     Column(Modifier.fillMaxSize().padding(top = contentPadding.calculateTopPadding(), bottom = contentPadding.calculateBottomPadding())) {
         TabRow(selectedTabIndex = tab) {
-            listOf("Watchlist", "Alerts", "Disclosures").forEachIndexed { i, label ->
+            listOf(
+                stringResource(R.string.watchlist_tab_watchlist),
+                stringResource(R.string.watchlist_tab_alerts),
+                stringResource(R.string.watchlist_tab_disclosures),
+            ).forEachIndexed { i, label ->
                 Tab(selected = tab == i, onClick = { tab = i }, text = { Text(label) })
             }
         }
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
             when (tab) {
                 0 -> {
-                    if (watch.isEmpty()) item { MutedText("Tap the star on any stock to add it here. Search from the top bar.") }
+                    if (watch.isEmpty()) item { MutedText(stringResource(R.string.watchlist_empty)) }
                     val bySymbol = stocks.associateBy { it.symbol }
                     val scoreBy = analyses.associateBy { it.symbol }
                     items(watch, key = { it }) { symbol ->
@@ -85,7 +92,7 @@ fun WatchlistScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
                             trailing = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     scoreBy[symbol]?.let { StanceBadge(it.stance, it.score) }
-                                    IconButton(onClick = { scope.launch { c.portfolio.setWatched(symbol, false) } }) { Icon(Icons.Filled.Delete, "Remove") }
+                                    IconButton(onClick = { scope.launch { c.portfolio.setWatched(symbol, false) } }) { Icon(Icons.Filled.Delete, stringResource(R.string.watchlist_remove)) }
                                 }
                             },
                             onClick = { onOpenStock(symbol) },
@@ -94,22 +101,22 @@ fun WatchlistScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
                     }
                 }
                 1 -> {
-                    if (alerts.isEmpty()) item { MutedText("No alerts yet. Open a stock and tap the bell to add one. Alerts are checked after each daily sync.") }
+                    if (alerts.isEmpty()) item { MutedText(stringResource(R.string.alerts_empty)) }
                     items(alerts, key = { it.id }) { a ->
                         val kind = runCatching { AlertKind.valueOf(a.kind) }.getOrNull()
                         Row(Modifier.fillMaxWidth().clickable { onOpenStock(a.symbol) }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
                                 Text(a.symbol, fontWeight = FontWeight.Bold)
-                                Text("${kind?.label ?: a.kind}${a.threshold?.let { " ${Fmt.peso(it)}" } ?: ""}", style = MaterialTheme.typography.bodyMedium)
-                                a.lastTriggered?.let { MutedText("Last fired $it") }
+                                Text("${kind?.let { alertKindLabel(it) } ?: a.kind}${a.threshold?.let { " ${Fmt.peso(it)}" } ?: ""}", style = MaterialTheme.typography.bodyMedium)
+                                a.lastTriggered?.let { MutedText(stringResource(R.string.alerts_last_fired, it)) }
                             }
-                            IconButton(onClick = { scope.launch { c.alerts.delete(a.id) } }) { Icon(Icons.Filled.Delete, "Delete alert") }
+                            IconButton(onClick = { scope.launch { c.alerts.delete(a.id) } }) { Icon(Icons.Filled.Delete, stringResource(R.string.alerts_delete)) }
                         }
                         HorizontalDivider()
                     }
                 }
                 else -> {
-                    if (disclosures.isEmpty()) item { MutedText("Disclosures for your holdings and watchlist appear here after a sync.") }
+                    if (disclosures.isEmpty()) item { MutedText(stringResource(R.string.watchlist_disclosures_empty)) }
                     items(disclosures, key = { it.id }) { d ->
                         Column(Modifier.fillMaxWidth().clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(d.url))) }.padding(vertical = 8.dp)) {
                             Text("${d.symbol} · ${d.title}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
@@ -131,23 +138,24 @@ fun AddAlertDialog(symbol: String, currentPrice: Double?, onDismiss: () -> Unit)
     var kind by remember { mutableStateOf(AlertKind.PRICE_ABOVE) }
     var threshold by remember { mutableStateOf(currentPrice?.let { "%.2f".format(it) } ?: "") }
     var error by remember { mutableStateOf<String?>(null) }
+    val enterPriceMsg = stringResource(R.string.alerts_enter_price)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Alert for $symbol") },
+        title = { Text(stringResource(R.string.alerts_dialog_title, symbol)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 AlertKind.entries.forEach { k ->
                     Row(Modifier.fillMaxWidth().clickable { kind = k }, verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = kind == k, onClick = { kind = k })
-                        Text(k.label)
+                        Text(alertKindLabel(k))
                     }
                 }
                 if (kind.needsThreshold) {
-                    OutlinedTextField(threshold, { threshold = it }, label = { Text("Price (₱)") }, singleLine = true,
+                    OutlinedTextField(threshold, { threshold = it }, label = { Text(stringResource(R.string.common_price_peso)) }, singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
                 }
-                MutedText("Checked against closing prices after each daily sync.")
+                MutedText(stringResource(R.string.alerts_checked_note))
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
         },
@@ -155,15 +163,15 @@ fun AddAlertDialog(symbol: String, currentPrice: Double?, onDismiss: () -> Unit)
             TextButton(onClick = {
                 val t = threshold.toDoubleOrNull()
                 if (kind.needsThreshold && (t == null || t <= 0)) {
-                    error = "Enter a price."
+                    error = enterPriceMsg
                 } else {
                     scope.launch {
                         c.alerts.add(symbol, kind, if (kind.needsThreshold) t else null)
                         onDismiss()
                     }
                 }
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.common_save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
     )
 }

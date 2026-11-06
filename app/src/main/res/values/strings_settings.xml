@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings, backup, app lock and first-run disclaimer screens. -->
+<resources>
+    <!-- SettingsScreen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_backend_status">Backend status</string>
+    <string name="settings_check_again">Check again</string>
+    <string name="settings_checking">Checking…</string>
+    <string name="settings_backend">Backend</string>
+    <string name="settings_not_reachable">Not reachable</string>
+    <string name="settings_app_key_mismatch">The app key doesn\'t match the backend\'s APP_KEY secret.</string>
+    <string name="settings_http_error">HTTP %1$d: %2$s</string>
+    <string name="settings_offline_reason">%1$s. The app is using prices saved on this phone and the phisix feed.</string>
+    <string name="settings_no_connection">No connection</string>
+    <string name="settings_server">Server: %1$s</string>
+    <string name="settings_connected">Connected</string>
+    <string name="settings_market_data">Market data</string>
+    <string name="settings_eodhd_licensed">EODHD (licensed)</string>
+    <string name="settings_free_sources_only">Free sources only</string>
+    <string name="settings_ai_analysis">AI analysis</string>
+    <string name="settings_claude_connected">Claude connected</string>
+    <string name="settings_ai_off">Off: rules engine</string>
+    <string name="settings_pse_today">PSE today</string>
+    <string name="settings_market_closed">Closed (%1$s)</string>
+    <string name="settings_trading_day">Trading day</string>
+
+    <string name="settings_premium_title">Piso Tiyempo Premium</string>
+    <string name="settings_status">Status</string>
+    <string name="settings_active">Active</string>
+    <string name="settings_premium_thanks">Thank you! Claude analysis, disclosure summaries and alerts are unlocked.</string>
+    <string name="settings_manage_subscription">Manage subscription</string>
+    <string name="settings_premium_pitch">Unlock Claude-written stock analysis and AI summaries of company disclosures. Cancel anytime in Google Play.</string>
+    <string name="settings_subscribe">Subscribe</string>
+    <string name="settings_subscribe_price">Subscribe · %1$s</string>
+    <string name="settings_checking_play">Checking Google Play…</string>
+
+    <string name="settings_eodhd_title">Your own EODHD key (optional)</string>
+    <string name="settings_eodhd_body">Have an EODHD subscription? Add your key and the app fetches prices with it directly from this phone, under your own data licence. It\'s stored encrypted on this device and never sent to our servers.</string>
+    <string name="settings_your_key">Your key</string>
+    <string name="settings_saved">Saved</string>
+    <string name="settings_key_removed">Key removed.</string>
+    <string name="settings_remove_key">Remove key</string>
+    <string name="settings_eodhd_key_label">EODHD API key</string>
+    <string name="settings_checking_key">Checking key…</string>
+    <string name="settings_key_saved">Key saved. It will be used from the next sync.</string>
+    <string name="settings_key_invalid">That key didn\'t return PSE data. Check it and your EODHD plan.</string>
+    <string name="settings_check_and_save">Check and save</string>
+
+    <string name="settings_practice_account">Practice account</string>
+    <string name="settings_starting_cash">Starting cash (₱)</string>
+    <string name="settings_practice_cash_note">Changing this updates the practice account\'s cash right away; your practice trades stay.</string>
+    <string name="settings_save">Save</string>
+
+    <string name="settings_never_synced">Never synced.</string>
+    <string name="settings_last_sync">Last sync %1$s\nPrices as of %2$s from %3$s\n%4$s</string>
+    <string name="settings_data_sources">Sources, in order: EODHD (licensed), then PSE Edge and the phisix community feed, then data saved on this phone. The app syncs automatically every weekday evening.</string>
+    <string name="settings_sync_now">Sync now</string>
+
+    <string name="settings_use_claude">Use Claude for analysis</string>
+    <string name="settings_ai_body">On: stock analyses and disclosure summaries are written by Claude Haiku, and the daily market brief by Claude Opus. Only the computed technical indicators are sent; your portfolio and trades never leave this phone. Off, or when AI is unavailable, the built-in rules engine writes the analysis instead.</string>
+
+    <string name="settings_language_title">Language / Wika</string>
+    <string name="settings_app_screens">App screens</string>
+    <string name="settings_lang_english">English</string>
+    <string name="settings_lang_filipino">Filipino</string>
+    <string name="settings_lang_taglish">Taglish</string>
+    <string name="settings_analysis_ai_text">Analysis and AI text</string>
+    <string name="settings_language_note">Pattern names and indicator terms (RSI, MACD, support) stay in English, as they\'re used on every trading platform.</string>
+
+    <string name="settings_app_lock">App lock</string>
+    <string name="settings_require_lock">Require fingerprint or PIN</string>
+    <string name="settings_app_lock_body">Asks for your fingerprint, face or screen-lock PIN when you open the app, and again after a minute away. Your data is also stored encrypted on the phone.</string>
+
+    <string name="settings_crash_reports">Crash reports</string>
+    <string name="settings_send_crash_reports">Send crash reports</string>
+    <string name="settings_crash_body">Anonymous technical details when the app crashes (device model, Android version, the error). No portfolio or personal data.</string>
+
+    <string name="settings_position_sizing">Position sizing</string>
+    <string name="settings_trading_capital">Trading capital (₱)</string>
+    <string name="settings_risk_per_trade" formatted="false">Risk per trade (% of capital)</string>
+    <string name="settings_risk_note" formatted="false">Most traders risk 0.5% to 2% per trade. Used for the trade plan on each stock.</string>
+
+    <string name="settings_broker_fees">Broker fees</string>
+    <string name="settings_commission" formatted="false">Commission (%)</string>
+    <string name="settings_min_commission">Minimum commission (₱)</string>
+    <string name="settings_sales_tax" formatted="false">Stock transaction tax on sells (%)</string>
+    <string name="settings_fees_defaults" formatted="false">Defaults: 0.25% commission (₱20 minimum) + 12% VAT, 0.005% PSE fee, 0.01% SCCP fee, 0.1% transaction tax on sells. Check your broker\'s schedule.</string>
+
+    <string name="settings_about">About</string>
+    <string name="settings_version">Piso Tiyempo %1$s</string>
+    <string name="settings_tagline">Buy right. Sell right. Tamang tiyempo.</string>
+    <string name="settings_about_disclaimer">Piso Tiyempo is an educational tool, not a broker or a licensed investment adviser, and nothing in it is a recommendation to buy or sell. Technical signals are probabilities and can be wrong. Market data may be delayed or contain errors. Always do your own research and consider consulting a licensed professional.</string>
+    <string name="settings_credits">Charts by TradingView Lightweight Charts (Apache 2.0). Disclosures from PSE Edge. AI by Anthropic Claude.</string>
+
+    <!-- BackupCard -->
+    <string name="backup_title">Backup, export and import</string>
+    <string name="backup_intro">Your data lives only on this phone. Export CSV files to back it up or open it in a spreadsheet.</string>
+    <string name="backup_export_real">Export my trades</string>
+    <string name="backup_export_practice">Export practice trades</string>
+    <string name="backup_export_journal">Export journal</string>
+    <string name="backup_exported_real">Exported %1$d trades.</string>
+    <string name="backup_exported_practice">Exported %1$d practice trades.</string>
+    <string name="backup_exported_journal">Exported %1$d journal entries.</string>
+    <string name="backup_export_failed">Export failed: %1$s</string>
+    <string name="backup_read_failed">Couldn\'t read the file: %1$s</string>
+    <string name="backup_import_trades">Import trades</string>
+    <string name="backup_import_journal">Import journal</string>
+    <string name="backup_trade_format_help">Trade files need columns for date, buy/sell, symbol, shares and price (fees optional). Most broker CSV exports work; if yours doesn\'t, save it with the header: %1$s</string>
+    <string name="backup_import_confirm_title">Import?</string>
+    <string name="backup_import">Import</string>
+    <string name="backup_cancel">Cancel</string>
+    <string name="backup_imported_trades">Imported %1$d trades.</string>
+    <string name="backup_imported_journal">Imported %1$d journal entries.</string>
+    <string name="backup_error_empty_file">empty file</string>
+    <string name="backup_error_cant_write">can\'t write the file</string>
+    <string name="backup_trades_to_add">%1$d new trades to add to My portfolio.</string>
+    <string name="backup_trades_skipped">%1$d already recorded will be skipped.</string>
+    <string name="backup_fees_estimated">Fees for %1$d trades weren\'t in the file and were estimated from your fee settings.</string>
+    <string name="backup_rows_unreadable">%1$d rows couldn\'t be read:</string>
+    <string name="backup_journal_to_add">%1$d journal entries to add.</string>
+
+    <!-- AppLock / LockScreen -->
+    <string name="lock_none_enrolled">Set up a fingerprint or screen lock in your phone\'s settings first.</string>
+    <string name="lock_no_hardware">This phone doesn\'t support app lock.</string>
+    <string name="lock_unavailable">App lock isn\'t available on this phone right now.</string>
+    <string name="lock_prompt_title">Unlock Piso Tiyempo</string>
+    <string name="lock_prompt_subtitle">Your portfolio is protected</string>
+    <string name="lock_app_name">Piso Tiyempo</string>
+    <string name="lock_locked_message">Locked to protect your portfolio and journal.</string>
+    <string name="lock_unlock">Unlock</string>
+
+    <!-- DisclaimerScreen -->
+    <string name="disclaimer_app_name">Piso Tiyempo</string>
+    <string name="disclaimer_tagline">Buy right. Sell right. Tamang tiyempo.</string>
+    <string name="disclaimer_before_you_start">Before you start</string>
+    <string name="disclaimer_point_not_adviser">Piso Tiyempo is an educational tool. It is not a broker, and not an investment adviser licensed by the Philippine SEC.</string>
+    <string name="disclaimer_point_probabilities">Buy and sell ideas come from technical analysis of past prices. They are probabilities, not predictions, and they are often wrong.</string>
+    <string name="disclaimer_point_data">Market data comes from third-party and community sources and may be delayed, incomplete or inaccurate.</string>
+    <string name="disclaimer_point_ai">AI-written analysis (by Anthropic\'s Claude) can make mistakes. Always check the numbers yourself.</string>
+    <string name="disclaimer_point_risk">Only invest money you can afford to lose. Consider talking to a licensed professional before making decisions.</string>
+    <string name="disclaimer_point_privacy">Your portfolio and trades are stored only on this phone. Only computed indicators for a stock are sent for AI analysis.</string>
+    <string name="disclaimer_agree">I understand, and I\'m responsible for my own investment decisions.</string>
+    <string name="disclaimer_continue">Continue</string>
+</resources>

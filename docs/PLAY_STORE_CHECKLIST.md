@@ -26,6 +26,8 @@
 - [ ] Turn on Play Integrity: link the Cloud project, set `PISO_CLOUD_PROJECT_NUMBER`, set `SESSION_SECRET` and `GOOGLE_SERVICE_ACCOUNT_JSON`, run `INTEGRITY_MODE = "monitor"` for a week, then `"enforce"` (see README).
 - [ ] Premium: create the `piso_premium` subscription in Play Console, test it with a license-testing account, and decide whether to set `PREMIUM_AI = "true"`.
 - [ ] Crash reports: add `app/google-services.json` to the release build, and declare "Crash logs" (collected, not shared, optional) in the Data safety form.
+- [ ] Data safety form: declare journal notes ("Other user-generated content", shared with Anthropic only when the user requests coaching, not stored).
+- [ ] Have a native speaker review the Filipino and Taglish text (res/values-tl, the rules-engine phrases in domain/analysis/Narratives.kt) before release.
 - [ ] Data safety form: also declare the install ID ("Device or other IDs", for app functionality and fraud prevention) and the purchase token ("Purchase history", for app functionality).
 - [ ] Set a monthly spend limit in the Anthropic Console.
 

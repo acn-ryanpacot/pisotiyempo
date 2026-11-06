@@ -20,11 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pisotiyempo.AppContainer
 import com.pisotiyempo.PisoApp
+import com.pisotiyempo.R
 import com.pisotiyempo.domain.analysis.NarrativeSource
 import com.pisotiyempo.domain.model.Stance
 import com.pisotiyempo.ui.theme.Gold
@@ -91,13 +93,14 @@ fun StanceBadge(stance: Stance, score: Int? = null) {
         Stance.HOLD -> c.neutral
         Stance.REDUCE, Stance.SELL -> c.loss
     }
-    Pill(if (score != null) "${stance.label} · $score" else stance.label, color.copy(alpha = 0.15f), color)
+    val label = stanceLabel(stance)
+    Pill(if (score != null) "$label · $score" else label, color.copy(alpha = 0.15f), color)
 }
 
 @Composable
 fun SourceBadge(source: NarrativeSource) {
     val ai = source != NarrativeSource.RULES
-    Pill(source.label, if (ai) Gold.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant, if (ai) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
+    Pill(sourceLabel(source), if (ai) Gold.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant, if (ai) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 @Composable
@@ -148,10 +151,7 @@ fun Bullets(items: List<String>) {
     items.forEach { Row { Text("•  ", style = MaterialTheme.typography.bodyMedium); Text(it, style = MaterialTheme.typography.bodyMedium) } }
 }
 
-const val DISCLAIMER_SHORT =
-    "For education only, not investment advice. Piso Tiyempo is not a licensed broker or investment adviser. Data may be delayed or inaccurate."
-
 @Composable
 fun DisclaimerFooter() {
-    MutedText(DISCLAIMER_SHORT, Modifier.fillMaxWidth().padding(vertical = 12.dp))
+    MutedText(stringResource(R.string.common_disclaimer_short), Modifier.fillMaxWidth().padding(vertical = 12.dp))
 }
