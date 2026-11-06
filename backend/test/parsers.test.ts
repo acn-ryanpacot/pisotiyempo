@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { adjustBars } from "../src/providers/eodhd";
 import { mapChart, parseDisclosures, parseDividends, parseSecurityOptions } from "../src/providers/pseEdge";
 import { mapPhisix, mapYahoo } from "../src/providers/community";
-import { fillChange, isStale, lastWeekdayOnOrBefore, sameTradingDay } from "../src/market";
+import { fillChange, isStale, sameTradingDay } from "../src/market";
+import { TradingCalendar } from "../src/calendar";
 import { computeMarketStats } from "../src/stats";
 import { parseFeatures, ValidationError } from "../src/ai/schemas";
 import { firstUsable, parsePseDate, parsePseDateTime, redact } from "../src/util";
@@ -108,20 +109,37 @@ describe("market helpers", () => {
     expect(sameTradingDay([q("A", 1.1, 0), q("B", 2, 0)], [q("A", 1, 0), q("B", 2, 0)])).toBe(false);
   });
 
-  it("rolls weekends back to Friday", () => {
-    expect(lastWeekdayOnOrBefore("2026-10-25")).toBe("2026-10-23");
-    expect(lastWeekdayOnOrBefore("2026-10-23")).toBe("2026-10-23");
+  it("rolls weekends and holidays back to the last trading day", () => {
+    const cal = new TradingCalendar();
+    expect(cal.lastTradingDayOnOrBefore("2026-10-25")).toBe("2026-10-23");
+    expect(cal.lastTradingDayOnOrBefore("2026-10-23")).toBe("2026-10-23");
+    // Mon 2026-11-02 is All Souls' Day, so Monday's last trading day is the previous Friday.
+    expect(cal.lastTradingDayOnOrBefore("2026-11-02")).toBe("2026-10-30");
+    // 2026-12-24/25 holidays, 26-27 weekend.
+    expect(cal.lastTradingDayOnOrBefore("2026-12-27")).toBe("2026-12-23");
+    expect(cal.closureName("2026-12-30")).toBe("Rizal Day");
+    expect(cal.isTradingDay("2026-12-29")).toBe(true);
+  });
+
+  it("applies ad-hoc closures on top of the holiday list", () => {
+    const cal = new TradingCalendar({ "2026-11-11": "Typhoon suspension" });
+    expect(cal.closureName("2026-11-11")).toBe("Typhoon suspension");
+    expect(cal.lastTradingDayOnOrBefore("2026-11-11")).toBe("2026-11-10");
+    expect(cal.upcoming("2026-12-24").map((h) => h.date).slice(0, 3)).toEqual(["2026-12-24", "2026-12-25", "2026-12-30"]);
   });
 
   it("marks a snapshot stale only after the next close and an hour since the last check", () => {
     const snap = (date: string, fetchedAt: string) => ({ source: "eodhd" as const, fetchedAt, data: { date, quotes: [] } });
     // Monday 2026-10-26 at 17:00 PHT = 09:00 UTC.
     const now = new Date("2026-10-26T09:00:00Z");
-    expect(isStale(snap("2026-10-23", "2026-10-26T07:30:00Z"), now)).toBe(true);
-    expect(isStale(snap("2026-10-23", "2026-10-26T08:30:00Z"), now)).toBe(false);
-    expect(isStale(snap("2026-10-26", "2026-10-26T07:30:00Z"), now)).toBe(false);
+    const cal = new TradingCalendar();
+    expect(isStale(snap("2026-10-23", "2026-10-26T07:30:00Z"), cal, now)).toBe(true);
+    expect(isStale(snap("2026-10-23", "2026-10-26T08:30:00Z"), cal, now)).toBe(false);
+    expect(isStale(snap("2026-10-26", "2026-10-26T07:30:00Z"), cal, now)).toBe(false);
     // Monday 10:00 PHT: Friday's data is current.
-    expect(isStale(snap("2026-10-23", "2026-10-24T00:00:00Z"), new Date("2026-10-26T02:00:00Z"))).toBe(false);
+    expect(isStale(snap("2026-10-23", "2026-10-24T00:00:00Z"), cal, new Date("2026-10-26T02:00:00Z"))).toBe(false);
+    // Evening of All Souls' Day (Mon 2026-11-02): Friday's data is still the latest that can exist.
+    expect(isStale(snap("2026-10-30", "2026-11-02T07:00:00Z"), cal, new Date("2026-11-02T10:00:00Z"))).toBe(false);
   });
 
   it("computes breadth and liquid movers", () => {

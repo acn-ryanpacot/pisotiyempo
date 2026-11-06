@@ -1,4 +1,4 @@
-﻿package com.pisotiyempo.data.repo
+package com.pisotiyempo.data.repo
 
 import android.util.Log
 import com.pisotiyempo.data.local.AppDatabase
@@ -9,10 +9,13 @@ import com.pisotiyempo.data.local.KvEntity
 import com.pisotiyempo.data.local.StockEntity
 import com.pisotiyempo.data.remote.ApiJson
 import com.pisotiyempo.data.remote.BarDto
+import com.pisotiyempo.data.remote.CalendarDto
+import com.pisotiyempo.data.remote.EodhdDirect
 import com.pisotiyempo.data.remote.ForeignFlowDto
 import com.pisotiyempo.data.remote.PhisixClient
 import com.pisotiyempo.data.remote.PisoApi
 import com.pisotiyempo.data.remote.QuoteDto
+import com.pisotiyempo.data.settings.SecretStore
 import com.pisotiyempo.domain.model.Bar
 import com.pisotiyempo.domain.ph.Sectors
 import kotlinx.coroutines.flow.Flow
@@ -26,14 +29,15 @@ val MANILA: ZoneId = ZoneId.of("Asia/Manila")
 data class SnapshotResult(val date: String, val source: String, val count: Int, val notes: List<String>)
 
 /**
- * Market data with a local-first design: everything is stored in Room so the app works offline, and
- * sync pulls from the backend (which itself falls back from EODHD to free sources). If the backend is
- * down, the latest prices come straight from the phisix community feed.
+ * Market data with a local-first design: everything is stored in Room so the app works offline. Sync order:
+ * the user's own EODHD key (if they added one), then the backend (which falls back from EODHD to free
+ * sources), then the phisix community feed directly.
  */
 class MarketRepository(
     private val db: AppDatabase,
     private val api: PisoApi,
     private val phisix: PhisixClient,
+    private val secrets: SecretStore,
 ) {
     fun stocks(): Flow<List<StockEntity>> = db.stocks().observeAll()
 
@@ -47,15 +51,49 @@ class MarketRepository(
 
     suspend fun mostActive(limit: Int): List<String> = db.stocks().mostActive(limit)
 
+    private suspend fun userEodhd(): EodhdDirect? = secrets.get(SecretStore.EODHD_KEY)?.let { EodhdDirect(it) }
+
+    suspend fun hasUserEodhdKey(): Boolean = secrets.get(SecretStore.EODHD_KEY) != null
+
+    /** Saves the user's own EODHD key after checking it works for PSE data. Pass null to remove it. */
+    suspend fun setUserEodhdKey(key: String?): Boolean {
+        if (key.isNullOrBlank()) {
+            secrets.put(SecretStore.EODHD_KEY, null)
+            return true
+        }
+        if (!EodhdDirect(key.trim()).check(LocalDate.now(MANILA).minusDays(14).toString())) return false
+        secrets.put(SecretStore.EODHD_KEY, key.trim())
+        return true
+    }
+
+    /** EODHD's bulk feed has no % change, so derive it from the last close we stored for each symbol. */
+    private suspend fun withChange(quotes: List<QuoteDto>): List<QuoteDto> {
+        val date = quotes.groupingBy { it.date }.eachCount().maxByOrNull { it.value }?.key ?: return quotes
+        val prev = db.bars().previousCloses(date).associate { it.symbol to it.close }
+        return quotes.map { q ->
+            val p = prev[q.symbol]
+            if (q.changePct != null || p == null || p <= 0) q else q.copy(changePct = (q.close - p) / p * 100)
+        }
+    }
+
     /** Pulls the latest trading day for all stocks and appends it to local history. */
     suspend fun syncSnapshot(): SnapshotResult {
-        val (quotes, source, notes) = try {
+        val own = userEodhd()?.let { direct ->
+            try {
+                Triple(withChange(direct.latestDay()), "eodhd (your key)", emptyList<String>())
+            } catch (e: Exception) {
+                Log.w(TAG, "user EODHD key failed, falling back to the backend", e)
+                null
+            }
+        }
+        val (quotes, source, notes) = own ?: try {
             val res = api.latest()
             Triple(res.data.quotes, res.source, res.notes)
         } catch (e: Exception) {
             Log.w(TAG, "backend snapshot failed, using phisix directly", e)
             val res = phisix.snapshot()
-            val date = lastWeekdayOnOrBefore(LocalDate.parse(res.as_of.take(10))).toString()
+            // phisix stamps today's date even when the market is closed, so roll back to the last trading day.
+            val date = lastTradingDayOnOrBefore(LocalDate.parse(res.as_of.take(10)), holidays()).toString()
             Triple(
                 res.stocks.filter { it.price.amount > 0 }.map {
                     QuoteDto(it.symbol.uppercase(), it.name, date, close = it.price.amount, volume = it.volume, changePct = it.percentChange)
@@ -99,8 +137,9 @@ class MarketRepository(
         if (db.kv().get(key)?.value == today) return count >= MIN_ANALYSIS_BARS
         return try {
             val from = LocalDate.now(MANILA).minusYears(2).toString()
-            val res = api.history(symbol, from)
-            db.bars().insert(res.data.map { it.toBarEntity(symbol) })
+            val own = userEodhd()?.let { runCatching { it.history(symbol, from) }.getOrNull()?.takeIf { bars -> bars.isNotEmpty() } }
+            val bars = own ?: api.history(symbol, from).data
+            db.bars().insert(bars.map { it.toBarEntity(symbol) })
             db.kv().put(KvEntity(key, today, System.currentTimeMillis()))
             true
         } catch (e: Exception) {
@@ -108,6 +147,36 @@ class MarketRepository(
             false
         }
     }
+
+    /** Downloads PSE holidays and ad-hoc closures; kept locally so the offline fallback can use them. */
+    suspend fun syncCalendar() {
+        try {
+            val from = LocalDate.now(MANILA).minusYears(1).withDayOfYear(1).toString()
+            val res = api.calendar(from)
+            db.kv().put(KvEntity(CALENDAR_KEY, ApiJson.encodeToString(CalendarDto.serializer(), res), System.currentTimeMillis()))
+        } catch (e: Exception) {
+            Log.w(TAG, "calendar sync failed", e)
+        }
+    }
+
+    private suspend fun calendar(): Map<String, String> =
+        db.kv().get(CALENDAR_KEY)
+            ?.let { runCatching { ApiJson.decodeFromString(CalendarDto.serializer(), it.value) }.getOrNull() }
+            ?.holidays?.associate { it.date to it.name }
+            .orEmpty()
+
+    /** Known PSE holidays as ISO dates; empty until the first successful calendar sync. */
+    suspend fun holidays(): Set<String> = calendar().keys
+
+    /** Why the PSE is closed today ("Weekend" or the holiday's name), or null on a trading day. */
+    suspend fun closedToday(): String? {
+        val today = LocalDate.now(MANILA)
+        if (today.dayOfWeek == DayOfWeek.SATURDAY || today.dayOfWeek == DayOfWeek.SUNDAY) return "Weekend"
+        return calendar()[today.toString()]
+    }
+
+    /** Backend health and configuration, for the Settings screen. Throws when the backend can't be reached. */
+    suspend fun backendStatus(): StatusDto = api.status()
 
     suspend fun syncPsei() {
         try {
@@ -169,10 +238,14 @@ class MarketRepository(
     companion object {
         private const val TAG = "MarketRepository"
         private const val MIN_ANALYSIS_BARS = 30
+        private const val CALENDAR_KEY = "calendar"
 
-        fun lastWeekdayOnOrBefore(date: LocalDate): LocalDate {
+        fun lastTradingDayOnOrBefore(date: LocalDate, holidays: Set<String> = emptySet()): LocalDate {
             var d = date
-            while (d.dayOfWeek == DayOfWeek.SATURDAY || d.dayOfWeek == DayOfWeek.SUNDAY) d = d.minusDays(1)
+            var guard = 0
+            while ((d.dayOfWeek == DayOfWeek.SATURDAY || d.dayOfWeek == DayOfWeek.SUNDAY || d.toString() in holidays) && guard++ < 30) {
+                d = d.minusDays(1)
+            }
             return d
         }
     }

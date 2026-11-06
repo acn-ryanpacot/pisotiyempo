@@ -6,6 +6,13 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// Crash reporting turns on only when Firebase's config file is present (Firebase console > Project settings),
+// so builds without it, including CI, still work.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
+}
+
 android {
     namespace = "com.pisotiyempo"
     compileSdk = 35
@@ -21,6 +28,9 @@ android {
         val appKey = providers.gradleProperty("PISO_APP_KEY").get()
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
         buildConfigField("String", "APP_KEY", "\"$appKey\"")
+        // Google Cloud project number linked to the app in Play Console. 0 turns Play Integrity off.
+        val cloudProject = providers.gradleProperty("PISO_CLOUD_PROJECT_NUMBER").getOrElse("0")
+        buildConfigField("long", "CLOUD_PROJECT_NUMBER", "${cloudProject}L")
     }
 
     buildTypes {
@@ -69,6 +79,11 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.serialization.json)
     implementation(libs.coroutines.android)
+    implementation(libs.coroutines.play.services)
+    implementation(libs.play.integrity)
+    implementation(libs.billing)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
 
     debugImplementation(libs.compose.ui.tooling)
 

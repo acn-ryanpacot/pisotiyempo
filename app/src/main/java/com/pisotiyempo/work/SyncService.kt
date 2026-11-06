@@ -45,6 +45,7 @@ class SyncService(
 
     suspend fun run(onProgress: suspend (String) -> Unit = {}): String = mutex.withLock {
         onProgress("Fetching latest prices")
+        market.syncCalendar()
         val snapshot = market.syncSnapshot()
         market.syncPsei()
 

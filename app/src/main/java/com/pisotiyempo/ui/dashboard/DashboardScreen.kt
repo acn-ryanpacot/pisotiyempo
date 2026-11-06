@@ -72,6 +72,7 @@ data class DashboardState(
 class DashboardViewModel(private val c: AppContainer, private val app: Application) : ViewModel() {
 
     val brief = MutableStateFlow<MarketBrief?>(null)
+    val closedToday = MutableStateFlow<String?>(null)
     val reasons = MutableStateFlow<Map<String, Reason>>(emptyMap())
 
     private val lists = combine(c.portfolio.summary(), c.analysis.scored(), c.portfolio.watchlist()) { summary, scored, watch ->
@@ -98,6 +99,7 @@ class DashboardViewModel(private val c: AppContainer, private val app: Applicati
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardState())
 
     init {
+        viewModelScope.launch { closedToday.value = c.market.closedToday() }
         viewModelScope.launch {
             val s = c.settings.current()
             if (System.currentTimeMillis() - s.lastSyncAt > 6 * 3600_000L) SyncService.syncNow(app)
@@ -133,13 +135,14 @@ fun DashboardScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
     val state by vm.state.collectAsStateWithLifecycle()
     val brief by vm.brief.collectAsStateWithLifecycle()
     val reasons by vm.reasons.collectAsStateWithLifecycle()
+    val closedToday by vm.closedToday.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = contentPadding.calculateTopPadding() + 8.dp, bottom = contentPadding.calculateBottomPadding() + 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { SyncStatus(state, onSync = vm::syncNow) }
+        item { SyncStatus(state, closedToday, onSync = vm::syncNow) }
         item { PortfolioCard(state.portfolio) }
         item { BriefCard(brief) }
         item {
@@ -173,8 +176,9 @@ fun DashboardScreen(onOpenStock: (String) -> Unit, contentPadding: PaddingValues
 }
 
 @Composable
-private fun SyncStatus(state: DashboardState, onSync: () -> Unit) {
+private fun SyncStatus(state: DashboardState, closedToday: String?, onSync: () -> Unit) {
     Column {
+        closedToday?.let { MutedText(if (it == "Weekend") "PSE is closed for the weekend." else "PSE is closed today: $it.") }
         Row(verticalAlignment = Alignment.CenterVertically) {
             val s = state.settings
             MutedText(

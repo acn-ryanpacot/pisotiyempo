@@ -53,9 +53,15 @@ interface BarDao {
     @Query("SELECT MAX(date) FROM bars WHERE symbol = :symbol")
     suspend fun lastDate(symbol: String): String?
 
+    /** Each symbol's last close before [date], for computing % change when a source doesn't provide it. */
+    @Query("SELECT b.symbol AS symbol, b.close AS close FROM bars b WHERE b.date = (SELECT MAX(p.date) FROM bars p WHERE p.symbol = b.symbol AND p.date < :date)")
+    suspend fun previousCloses(date: String): List<SymbolClose>
+
     @Query("DELETE FROM bars WHERE date < :before")
     suspend fun pruneBefore(before: String)
 }
+
+data class SymbolClose(val symbol: String, val close: Double)
 
 @Dao
 interface AnalysisDao {

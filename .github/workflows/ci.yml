@@ -29,14 +29,13 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      # Checks gradle-wrapper.jar against Gradle's published checksums before running it.
+      - uses: gradle/actions/wrapper-validation@v4
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.9"
-      # The repository has no Gradle wrapper jar; CI uses the pinned Gradle above.
       - name: Unit tests
-        run: gradle :app:testDebugUnitTest --stacktrace
+        run: ./gradlew :app:testDebugUnitTest --stacktrace
       - name: Build debug APK
-        run: gradle :app:assembleDebug --stacktrace
+        run: ./gradlew :app:assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: piso-tiyempo-debug-apk

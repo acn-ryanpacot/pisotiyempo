@@ -19,13 +19,23 @@ val ApiJson = Json {
     coerceInputValues = true
 }
 
+/** Supplies the Play Integrity session token sent with each request (see IntegritySession). */
+interface SessionProvider {
+    /** A valid session token, or null to send the request without one. */
+    suspend fun token(api: PisoApi): String?
+
+    suspend fun invalidate()
+}
+
 /** Client for the Piso Tiyempo backend (see backend/). */
 class PisoApi(
     private val baseUrl: String = BuildConfig.API_BASE_URL.trimEnd('/'),
     private val appKey: String = BuildConfig.APP_KEY,
     private val http: OkHttpClient = defaultClient(),
+    private val sessions: SessionProvider? = null,
 ) {
     suspend fun status(): StatusDto = get("/v1/status")
+    suspend fun calendar(from: String): CalendarDto = get("/v1/calendar?from=$from")
     suspend fun latest(): SourcedDto<SnapshotDto> = get("/v1/eod/latest")
     suspend fun listings(): SourcedDto<List<ListingDto>> = get("/v1/listings")
     suspend fun history(symbol: String, from: String): SourcedDto<List<BarDto>> = get("/v1/history/$symbol?from=$from")
@@ -38,14 +48,32 @@ class PisoApi(
     suspend fun summarizeDisclosure(request: DisclosureRequest): DisclosureSummaryResponse =
         post("/v1/ai/disclosure", ApiJson.encodeToString(DisclosureRequest.serializer(), request))
 
+    /** Exchanges a Play Integrity token for a session token. Sent without a session, since it creates one. */
+    suspend fun createSession(request: SessionRequest): SessionDto =
+        post("/v1/auth/session", ApiJson.encodeToString(SessionRequest.serializer(), request), authenticated = false)
+
     private suspend inline fun <reified T> get(path: String): T = call(Request.Builder().url(baseUrl + path).get())
 
-    private suspend inline fun <reified T> post(path: String, body: String): T =
-        call(Request.Builder().url(baseUrl + path).post(body.toRequestBody(JSON_TYPE)))
+    private suspend inline fun <reified T> post(path: String, body: String, authenticated: Boolean = true): T =
+        call(Request.Builder().url(baseUrl + path).post(body.toRequestBody(JSON_TYPE)), authenticated)
 
-    private suspend inline fun <reified T> call(builder: Request.Builder): T {
-        val text = withContext(Dispatchers.IO) {
-            http.newCall(builder.header("X-App-Key", appKey).build()).execute().use { res ->
+    private suspend inline fun <reified T> call(builder: Request.Builder, authenticated: Boolean = true): T {
+        val text = try {
+            execute(builder, authenticated)
+        } catch (e: ApiException) {
+            // Sessions expire or get revoked: fetch a fresh one and retry once.
+            if (!authenticated || sessions == null || e.status != 401 || e.code != "integrity_required") throw e
+            sessions.invalidate()
+            execute(builder, authenticated)
+        }
+        return ApiJson.decodeFromString<T>(text)
+    }
+
+    private suspend fun execute(builder: Request.Builder, authenticated: Boolean): String {
+        builder.header("X-App-Key", appKey)
+        if (authenticated) sessions?.token(this)?.let { builder.header("Authorization", "Bearer $it") }
+        return withContext(Dispatchers.IO) {
+            http.newCall(builder.build()).execute().use { res ->
                 val body = res.body?.string().orEmpty()
                 if (!res.isSuccessful) {
                     val err = runCatching { ApiJson.decodeFromString<ErrorDto>(body) }.getOrNull()
@@ -54,7 +82,6 @@ class PisoApi(
                 body
             }
         }
-        return ApiJson.decodeFromString<T>(text)
     }
 
     companion object {

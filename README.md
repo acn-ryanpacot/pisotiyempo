@@ -38,12 +38,17 @@ An Android app for Philippine Stock Exchange (PSE) investors: daily prices, char
 | Backtests | For each signal: how many times it fired on this stock, its win rate and average 10-day move. |
 | Alerts | Price above/below, score turns buy/sell, new confirmed pattern. Checked after each daily sync and sent as notifications. |
 | Risk | Trade plan (ATR/support stop, target, reward:risk), position sizing, concentration warnings (single stock > 25%, sector > 40%). |
+| PSE calendar | 2026–2027 holidays from the Malacañang proclamations, plus ad-hoc closures (typhoons) added through an admin endpoint. |
+| Premium | Optional `piso_premium` Google Play subscription, verified by the backend. With `PREMIUM_AI=true`, Claude stock analysis and disclosure summaries need it. |
+| Your own EODHD key | Optional: users with an EODHD plan can add their key (stored encrypted on the phone); prices then come directly from EODHD under their own licence. |
+| Security | Play Integrity sessions (off / monitor / enforce), so only genuine Play installs can use the backend. |
+| Crash reports | Firebase Crashlytics when `app/google-services.json` is present; users can switch it off. |
 
 ## Data sources and fallbacks
 
 | Data | 1st choice | Fallback(s) | Notes |
 |---|---|---|---|
-| Latest prices (all stocks) | EODHD bulk end-of-day | phisix community feed → app calls phisix directly if the backend is down | phisix has no open/high/low; candlestick patterns are skipped for those days. |
+| Latest prices (all stocks) | User's own EODHD key (if added) → backend: EODHD bulk end-of-day | phisix community feed → app calls phisix directly if the backend is down | phisix has no open/high/low; candlestick patterns are skipped for those days. |
 | Price history | EODHD | PSE Edge chart data | PSE Edge reports peso turnover, so volume is estimated. |
 | PSEi | EODHD `PSEI.INDX` | Yahoo `PSEI.PS` | Yahoo only returns the latest day; history builds up in the app. |
 | Dividends | EODHD | PSE Edge | |
@@ -72,7 +77,7 @@ npm install
 npx wrangler login
 npx wrangler kv namespace create CACHE     # paste the id into wrangler.toml
 npx wrangler secret put APP_KEY            # any long random string; the app sends it
-npx wrangler secret put ADMIN_KEY          # for the foreign-flow upload endpoint
+npx wrangler secret put ADMIN_KEY          # for the admin endpoints (foreign flow, market closures)
 npx wrangler secret put EODHD_API_KEY      # optional: without it, free sources are used
 npx wrangler secret put ANTHROPIC_API_KEY  # optional: without it, the app uses its rules engine
 npm test && npm run deploy
@@ -80,15 +85,33 @@ npm test && npm run deploy
 
 Useful: `npm run dev` for a local server, `npm run probe` to check every data source.
 
+**Add a sudden market closure** (typhoon, or an Eid date proclaimed late):
+
+```bash
+curl -X POST https://<worker>/v1/admin/closure -H "X-Admin-Key: <ADMIN_KEY>" -H "Content-Type: application/json" -d '{"date":"2027-03-10","name":"Eid'"'"'l Fitr"}'
+```
+
+Send `"remove": true` to undo one. Each September, add the next year's holidays to `backend/src/calendar.ts`.
+
+**Play Integrity and Premium** (after the app is in Play Console):
+
+1. In Google Cloud, enable the *Play Integrity API* and the *Google Play Android Developer API*, and create a service account with a JSON key. In Play Console, invite that service account (Users and permissions) with *View financial data* and *Manage orders and subscriptions*, and link the Cloud project under *App integrity*.
+2. Set the secrets: `npx wrangler secret put SESSION_SECRET` (a long random string) and `npx wrangler secret put GOOGLE_SERVICE_ACCOUNT_JSON` (paste the whole JSON file).
+3. In Play Console, create a subscription with product id `piso_premium`.
+4. In `wrangler.toml`, set `INTEGRITY_MODE = "monitor"`, watch the logs (`npx wrangler tail`) for a week, then switch to `"enforce"`. Set `PREMIUM_AI = "true"` when you want Claude analysis to be premium-only.
+
 ### 2. Android app
 
-1. Install Android Studio and open this folder. Let it create the Gradle wrapper and offer any version upgrades.
+1. Install Android Studio and open this folder. Decline any Android Gradle Plugin upgrade prompt until the first build works.
 2. In `~/.gradle/gradle.properties` (not the repo), set:
    ```properties
    PISO_API_BASE_URL=https://piso-tiyempo-api.<your-subdomain>.workers.dev
    PISO_APP_KEY=<same value as the APP_KEY secret>
+   # Optional, once linked in Play Console > App integrity; 0 keeps Play Integrity off:
+   PISO_CLOUD_PROJECT_NUMBER=0
    ```
-3. Run the `app` configuration on a device or emulator. Unit tests: `gradle :app:testDebugUnitTest`.
+   Optional crash reports: create a Firebase project for `com.pisotiyempo`, download `google-services.json` into `app/` (it's gitignored) and enable Crashlytics.
+3. Run the `app` configuration on a device or emulator. Unit tests: `./gradlew :app:testDebugUnitTest` (or `gradlew.bat` in a Windows terminal).
 
 CI (`.github/workflows/ci.yml`) runs the backend tests, the Android unit tests and a debug APK build on every push.
 

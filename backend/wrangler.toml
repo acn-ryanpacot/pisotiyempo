@@ -18,9 +18,16 @@ crons = ["0 9 * * 1-5", "0 11 * * 1-5"]
 [vars]
 # Set to "false" to switch every AI endpoint off without redeploying code.
 AI_ENABLED = "true"
+# Play Integrity: "off" until the app is in Play Console, then "monitor" for a week, then "enforce".
+INTEGRITY_MODE = "off"
+PLAY_PACKAGE_NAME = "com.pisotiyempo"
+# "true" = per-stock and disclosure AI need an active "piso_premium" subscription. The daily brief stays free.
+PREMIUM_AI = "false"
 
 # Secrets (never commit these). Set each with: npx wrangler secret put <NAME>
 #   EODHD_API_KEY      - EODHD token. Leave unset to run on the free fallback sources only.
 #   ANTHROPIC_API_KEY  - Claude API key. Leave unset to make the app use its on-device rules engine.
 #   APP_KEY            - Shared key the Android app sends in X-App-Key.
-#   ADMIN_KEY          - Key for the admin upload endpoints.
+#   ADMIN_KEY          - Key for the admin endpoints (foreign flow, market closures).
+#   SESSION_SECRET     - Random string that signs session tokens. Required for Play Integrity.
+#   GOOGLE_SERVICE_ACCOUNT_JSON - Service-account key (whole JSON file) with Play Integrity API access.

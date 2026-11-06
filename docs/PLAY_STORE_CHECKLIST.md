@@ -22,8 +22,11 @@
 
 - [ ] Create an upload keystore and enable Play App Signing. Never commit the keystore.
 - [ ] Set real `PISO_API_BASE_URL` / `PISO_APP_KEY` in `~/.gradle/gradle.properties` or CI secrets.
-- [ ] Build a release bundle: `gradle :app:bundleRelease`. R8 rules for kotlinx.serialization are in `app/proguard-rules.pro`; smoke-test the release build on a real device.
-- [ ] Recommended: add the Play Integrity API to the backend so only genuine installs can call it. `X-App-Key` alone is extractable from the APK.
+- [ ] Build a release bundle: `./gradlew :app:bundleRelease`. R8 rules for kotlinx.serialization are in `app/proguard-rules.pro`; smoke-test the release build on a real device.
+- [ ] Turn on Play Integrity: link the Cloud project, set `PISO_CLOUD_PROJECT_NUMBER`, set `SESSION_SECRET` and `GOOGLE_SERVICE_ACCOUNT_JSON`, run `INTEGRITY_MODE = "monitor"` for a week, then `"enforce"` (see README).
+- [ ] Premium: create the `piso_premium` subscription in Play Console, test it with a license-testing account, and decide whether to set `PREMIUM_AI = "true"`.
+- [ ] Crash reports: add `app/google-services.json` to the release build, and declare "Crash logs" (collected, not shared, optional) in the Data safety form.
+- [ ] Data safety form: also declare the install ID ("Device or other IDs", for app functionality and fraud prevention) and the purchase token ("Purchase history", for app functionality).
 - [ ] Set a monthly spend limit in the Anthropic Console.
 
 ## Quality

@@ -76,7 +76,22 @@ data class ForeignFlowDto(
 )
 
 @Serializable
-data class StatusDto(val eodhdConfigured: Boolean, val aiEnabled: Boolean, val today: String)
+data class StatusDto(
+    val eodhdConfigured: Boolean,
+    val aiEnabled: Boolean,
+    val today: String,
+    /** Holiday name when the PSE is closed today, "Weekend" on weekends, null on trading days. */
+    val marketClosedToday: String? = null,
+    val premiumRequiredForAi: Boolean = false,
+    /** Whether the backend sees an active premium subscription on this request's session. */
+    val premium: Boolean = false,
+)
+
+@Serializable
+data class HolidayDto(val date: String, val name: String)
+
+@Serializable
+data class CalendarDto(val holidays: List<HolidayDto>)
 
 @Serializable
 data class BriefDto(
@@ -139,6 +154,12 @@ data class DisclosureSummaryDto(val summary: String, val impact: String, val key
 
 @Serializable
 data class DisclosureSummaryResponse(val id: String, val model: String, val summary: DisclosureSummaryDto)
+
+@Serializable
+data class SessionRequest(val installId: String, val integrityToken: String?, val purchaseToken: String? = null)
+
+@Serializable
+data class SessionDto(val token: String, val expiresAt: Long, val premiumUntil: Long? = null)
 
 @Serializable
 data class ErrorDto(val error: String, val message: String = "")

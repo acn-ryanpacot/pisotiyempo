@@ -18,6 +18,8 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 data class Settings(
     val disclaimerAccepted: Boolean = false,
     val aiEnabled: Boolean = true,
+    /** Send anonymous crash reports (only when the build includes Firebase Crashlytics). */
+    val crashReports: Boolean = true,
     /** Trading capital used by the position sizer. */
     val capital: Double = 100_000.0,
     /** Percent of capital to risk per trade. */
@@ -33,6 +35,7 @@ class SettingsStore(private val context: Context) {
     private object Keys {
         val disclaimer = booleanPreferencesKey("disclaimer_accepted_v1")
         val ai = booleanPreferencesKey("ai_enabled")
+        val crashReports = booleanPreferencesKey("crash_reports")
         val capital = doublePreferencesKey("capital")
         val risk = doublePreferencesKey("risk_pct")
         val commission = doublePreferencesKey("commission_rate")
@@ -53,6 +56,7 @@ class SettingsStore(private val context: Context) {
         return Settings(
             disclaimerAccepted = this[Keys.disclaimer] ?: false,
             aiEnabled = this[Keys.ai] ?: true,
+            crashReports = this[Keys.crashReports] ?: true,
             capital = this[Keys.capital] ?: 100_000.0,
             riskPct = this[Keys.risk] ?: 1.0,
             fees = d.copy(
@@ -70,6 +74,8 @@ class SettingsStore(private val context: Context) {
     suspend fun acceptDisclaimer() = context.dataStore.edit { it[Keys.disclaimer] = true }
 
     suspend fun setAiEnabled(enabled: Boolean) = context.dataStore.edit { it[Keys.ai] = enabled }
+
+    suspend fun setCrashReports(enabled: Boolean) = context.dataStore.edit { it[Keys.crashReports] = enabled }
 
     suspend fun setRisk(capital: Double, riskPct: Double) = context.dataStore.edit {
         it[Keys.capital] = capital

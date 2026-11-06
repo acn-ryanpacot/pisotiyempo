@@ -55,6 +55,8 @@ class MainActivity : ComponentActivity() {
                         else -> {
                             LaunchedEffect(Unit) {
                                 if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                // Picks up purchases made on another device or renewed while the app was closed.
+                                container.billing.refresh()
                             }
                             AppNav(openSymbol = pendingSymbol, onSymbolOpened = { pendingSymbol = null })
                         }

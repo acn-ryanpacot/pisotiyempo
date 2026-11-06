@@ -1,0 +1,5 @@
+# Keep shell scripts LF so gradlew runs on Linux CI and macOS.
+gradlew text eol=lf
+*.sh text eol=lf
+gradlew.bat text eol=crlf
+*.jar binary

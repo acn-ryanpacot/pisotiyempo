@@ -2,6 +2,7 @@ import { Eodhd } from "./providers/eodhd";
 import { PseEdge } from "./providers/pseEdge";
 import { phisixSnapshot, yahooPsei } from "./providers/community";
 import type { Bar, Disclosure, Dividend, Env, ForeignFlowDay, Listing, Quote, Sourced } from "./types";
+import { TradingCalendar } from "./calendar";
 import { addDays, firstUsable, phtToday, type Attempt } from "./util";
 
 const HOUR = 3600;
@@ -19,10 +20,17 @@ export interface Snapshot {
 export class Market {
   private readonly eodhd: Eodhd | null;
   private readonly pseEdge: PseEdge;
+  private calendarPromise: Promise<TradingCalendar> | null = null;
 
   constructor(private readonly env: Env) {
     this.eodhd = env.EODHD_API_KEY ? new Eodhd(env.EODHD_API_KEY) : null;
     this.pseEdge = new PseEdge(env.CACHE);
+  }
+
+  /** Holiday calendar including ad-hoc closures from KV, loaded once per request. */
+  calendar(): Promise<TradingCalendar> {
+    this.calendarPromise ??= TradingCalendar.load(this.env.CACHE);
+    return this.calendarPromise;
   }
 
   private eodhdAttempt<T>(run: (e: Eodhd) => Promise<T>): Attempt<T>[] {
@@ -33,7 +41,8 @@ export class Market {
   /** Latest trading day for every PSE security, with % change filled in from the previous snapshot when missing. */
   async latest(forceRefresh = false): Promise<Sourced<Snapshot>> {
     const previous = await this.env.CACHE.get<Sourced<Snapshot>>("eod:latest", "json");
-    if (!forceRefresh && previous && !isStale(previous)) return previous;
+    const calendar = await this.calendar();
+    if (!forceRefresh && previous && !isStale(previous, calendar)) return previous;
 
     const result = await firstUsable<Quote[]>(
       [
@@ -44,7 +53,7 @@ export class Market {
     );
     // phisix stamps its data with today's date even on weekends and holidays, so detect a repeat of the last day.
     const repeat = result.source === "phisix" && previous != null && sameTradingDay(result.data, previous.data.quotes);
-    const date = result.source === "phisix" ? lastWeekdayOnOrBefore(mostCommonDate(result.data)) : mostCommonDate(result.data);
+    const date = result.source === "phisix" ? calendar.lastTradingDayOnOrBefore(mostCommonDate(result.data)) : mostCommonDate(result.data);
     const isNewDay = !repeat && (!previous || date > previous.data.date || (date === previous.data.date && result.source === "eodhd" && previous.source !== "eodhd"));
 
     if (!isNewDay && previous) {
@@ -173,12 +182,6 @@ export function fillChange(quotes: Quote[], previous: Quote[]): Quote[] {
   });
 }
 
-export function lastWeekdayOnOrBefore(date: string): string {
-  let d = date;
-  while ([0, 6].includes(new Date(`${d}T00:00:00Z`).getUTCDay())) d = addDays(d, -1);
-  return d;
-}
-
 /** True when at least 95% of symbols present in both lists have the same close and volume. */
 export function sameTradingDay(a: Quote[], b: Quote[]): boolean {
   const prev = new Map(b.map((q) => [q.symbol, q]));
@@ -194,12 +197,13 @@ export function sameTradingDay(a: Quote[], b: Quote[]): boolean {
 }
 
 /**
- * A snapshot is stale once a newer trading day should exist: after 4 PM PHT on a weekday whose data
+ * A snapshot is stale once a newer trading day should exist: after 4 PM PHT on a trading day whose data
  * we don't have yet, re-check at most once an hour.
  */
-export function isStale(snapshot: Sourced<Snapshot>, now: Date = new Date()): boolean {
+export function isStale(snapshot: Sourced<Snapshot>, calendar: TradingCalendar = new TradingCalendar(), now: Date = new Date()): boolean {
   const today = phtToday(now);
-  const expected = Number(new Date(now.getTime() + 8 * HOUR * 1000).getUTCHours()) >= 16 ? lastWeekdayOnOrBefore(today) : lastWeekdayOnOrBefore(addDays(today, -1));
+  const afterClose = new Date(now.getTime() + 8 * HOUR * 1000).getUTCHours() >= 16;
+  const expected = calendar.lastTradingDayOnOrBefore(afterClose ? today : addDays(today, -1));
   if (snapshot.data.date >= expected) return false;
   return now.getTime() - Date.parse(snapshot.fetchedAt) > HOUR * 1000;
 }

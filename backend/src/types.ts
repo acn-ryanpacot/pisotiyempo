@@ -5,6 +5,15 @@ export interface Env {
   ANTHROPIC_API_KEY?: string;
   APP_KEY?: string;
   ADMIN_KEY?: string;
+  /** "off" (default), "monitor" (log failures but allow) or "enforce" (reject non-genuine installs). */
+  INTEGRITY_MODE?: string;
+  PLAY_PACKAGE_NAME?: string;
+  /** Service-account key JSON with access to the Play Integrity API. */
+  GOOGLE_SERVICE_ACCOUNT_JSON?: string;
+  /** Random secret used to sign session tokens. */
+  SESSION_SECRET?: string;
+  /** "true" makes per-stock and disclosure AI analysis require an active premium subscription. */
+  PREMIUM_AI?: string;
 }
 
 export type Source = "eodhd" | "pse-edge" | "phisix" | "yahoo" | "manual";
