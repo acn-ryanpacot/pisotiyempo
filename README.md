@@ -49,6 +49,9 @@ An Android app for Philippine Stock Exchange (PSE) investors: daily prices, char
 | CSV import/export | Export trades, practice trades and the journal; import trades from broker-style CSVs (common column names recognized, duplicates skipped, missing fees estimated). |
 | Privacy and security | The database is encrypted with SQLCipher (key wrapped by the Android Keystore); optional fingerprint/face/PIN app lock. |
 | Languages | App screens in English or Filipino; analysis and AI text in English, Filipino or Taglish. Filipino text should be reviewed by a native speaker before release. |
+| Desktop app | Windows (MSI) and macOS app with the same engine: dashboard, market, stock charts and analysis, screener, portfolio and practice trading, journal, watchlist. English only for now. |
+| Phone ↔ desktop sync | Trades, journal, watchlist and alerts sync both ways, end-to-end encrypted (AES-256-GCM; the server stores only ciphertext). Pair by scanning the desktop's QR code with the phone. |
+| Personal dashboard feed | The desktop app serves your data as a read-only JSON API on `http://127.0.0.1:8765`, writes CSV/JSON files after every sync, and keeps a plain SQLite file you can read directly. |
 
 ## Data sources and fallbacks
 
@@ -106,6 +109,24 @@ Send `"remove": true` to undo one. Each September, add the next year's holidays 
 3. In Play Console, create a subscription with product id `piso_premium`.
 4. In `wrangler.toml`, set `INTEGRITY_MODE = "monitor"`, watch the logs (`npx wrangler tail`) for a week, then switch to `"enforce"`. Set `PREMIUM_AI = "true"` when you want Claude analysis to be premium-only.
 
+**Phone ↔ desktop sync** (Cloudflare D1, free tier):
+
+```bash
+npx wrangler d1 create piso-sync
+```
+
+Paste the `database_id` it prints into `wrangler.toml` (`[[d1_databases]]`), then create the tables and redeploy:
+
+```bash
+npx wrangler d1 migrations apply piso-sync --remote
+```
+
+```bash
+npm run deploy
+```
+
+While `INTEGRITY_MODE` is `"enforce"`, a desktop can only join a sync group that a verified phone has registered, so link from the phone side first (the desktop shows "Waiting for your phone" until then).
+
 ### 2. Android app
 
 1. Install Android Studio and open this folder. Decline any Android Gradle Plugin upgrade prompt until the first build works.
@@ -119,7 +140,25 @@ Send `"remove": true` to undo one. Each September, add the next year's holidays 
    Optional crash reports: create a Firebase project for `com.pisotiyempo`, download `google-services.json` into `app/` (it's gitignored) and enable Crashlytics.
 3. Run the `app` configuration on a device or emulator. Unit tests: `./gradlew :app:testDebugUnitTest` (or `gradlew.bat` in a Windows terminal).
 
-CI (`.github/workflows/ci.yml`) runs the backend tests, the Android unit tests and a debug APK build on every push.
+### 3. Desktop app
+
+- **Install:** download `piso-tiyempo-windows-installer` from the latest CI run (Actions tab) and run the MSI. It installs per user, no admin rights needed. To build it yourself on Windows: `gradlew.bat :desktop:packageMsi` (output in `desktop/build/compose/binaries/main/msi/`). Run without installing: `gradlew.bat :desktop:run`.
+- **Settings:** it uses the same `PISO_API_BASE_URL` / `PISO_APP_KEY` from `~/.gradle/gradle.properties` at build time. You can change the backend address later in the app (Settings) or in `%APPDATA%\PisoTiyempo\config.properties`.
+- **Link your phone:** desktop Settings › Link phone › Show QR code, then on the phone: Settings › Sync with your computer › Scan desktop QR code. The link code is also your recovery key: keep a copy.
+
+### 4. Personal dashboard
+
+With the desktop app running:
+
+| Option | Where | Good for |
+|---|---|---|
+| JSON API (read-only, this computer only) | `http://127.0.0.1:8765/api/summary`, `/api/holdings`, `/api/trades?account=REAL` (or `PAPER`), `/api/closed-trades`, `/api/journal`, `/api/watchlist`, `/api/analyses`, `/api/prices` | Custom web dashboards, Grafana (JSON/Infinity plugin), Python scripts |
+| CSV + JSON files, rewritten after every sync | `%APPDATA%\PisoTiyempo\export\` (`summary.json`, `holdings.csv`, `trades.csv`, `closed_trades.csv`, `journal.csv`, `analyses.csv`, `prices.csv`, `watchlist.csv`, plus `_practice` versions) | Excel, Power BI, Google Sheets imports |
+| SQLite database | `%APPDATA%\PisoTiyempo\piso-tiyempo.db` (tables `trades`, `journal`, `watchlist`, `stocks`, `bars`, `analyses`) | Tools that read databases directly; open it read-only |
+
+Options live in `%APPDATA%\PisoTiyempo\config.properties`: `feedPort`, `feedEnabled`, `exportDir`, `exportEnabled`, and `feedAllowOrigins` (comma-separated, e.g. `http://localhost:3000`, needed only if a browser-based dashboard on another port calls the API).
+
+CI (`.github/workflows/ci.yml`) runs the backend tests, the shared-core and Android unit tests, a debug APK build, the desktop tests, and builds the Windows installer on every push.
 
 ## Before publishing on Google Play
 
@@ -131,12 +170,20 @@ See [docs/PLAY_STORE_CHECKLIST.md](docs/PLAY_STORE_CHECKLIST.md). The two items 
 ## Project layout
 
 ```
-app/src/main/java/com/pisotiyempo/
-  domain/       Pure Kotlin, unit-tested: indicators, patterns, analysis, PH rules, portfolio math
-  data/         Room database, backend client, repositories, settings
+core/src/main/kotlin/com/pisotiyempo/      Shared by phone and desktop, unit-tested
+  domain/       Indicators, patterns, analysis, PH rules, portfolio math, CSV, journal insights
+  data/remote/  Backend client and DTOs
+  sync/         Encrypted sync protocol (link codes, AES-GCM, last-write-wins engine)
+app/src/main/java/com/pisotiyempo/        Android app
+  data/         Room database, repositories, settings, device sync
   work/         Daily sync worker and notifications
-  ui/           Compose screens (dashboard, market, stock, portfolio, watchlist, tools, settings)
+  ui/           Compose screens
 app/src/main/assets/chart/   TradingView Lightweight Charts + chart.html
-backend/src/    Worker: providers (EODHD, PSE Edge, phisix, Yahoo), fallback chain, Claude endpoints
+desktop/src/main/kotlin/com/pisotiyempo/desktop/   Desktop app (Compose for Desktop)
+  data/         SQLite store, sync store, market data, settings
+  feed/         Dashboard JSON API and CSV/JSON export
+  ui/           Desktop screens and the candlestick chart
+backend/src/    Worker: providers (EODHD, PSE Edge, phisix, Yahoo), fallback chain, Claude endpoints, sync relay
+backend/migrations/   D1 schema for the sync relay
 docs/           Privacy policy, Play Store checklist
 ```

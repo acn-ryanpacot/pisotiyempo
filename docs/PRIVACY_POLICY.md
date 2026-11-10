@@ -4,11 +4,15 @@ _Last updated: [publication date]_
 
 Piso Tiyempo ("the app") is an educational stock-analysis app for the Philippine Stock Exchange. This policy explains what data the app handles. It is written to meet Google Play's requirements and the Philippine Data Privacy Act of 2012 (RA 10173). **Have it reviewed by counsel and fill in the bracketed details before publishing.**
 
-## Data that stays on your phone
+## Data that stays on your devices
 
-- Your trades, holdings, watchlist, alerts and settings are stored only in the app's local database on your device.
-- They are not uploaded to our servers or shared with anyone.
+- Your trades, holdings, watchlist, alerts and settings are stored in the app's local database on your device.
+- Unless you turn on sync (below), they are not uploaded to our servers or shared with anyone.
 - They are excluded from Android cloud backup and device-to-device transfer. Uninstalling the app deletes them.
+
+## Sync between your phone and computer (optional)
+
+If you link the phone app with the desktop app, your trades, journal, watchlist and alerts are encrypted on your device with a key that only your linked devices have, and the encrypted copies are relayed through our server. We can't read them. The server keeps the encrypted copies and a random group id so your devices can catch up; you can delete them at any time (phone: Settings › Sync with your computer › Delete synced data from server). If you lose every linked device and the link code, the synced data can't be recovered, by you or by us.
 
 ## Data sent to our servers
 
