@@ -158,7 +158,14 @@ data class DisclosureSummaryDto(val summary: String, val impact: String, val key
 data class DisclosureSummaryResponse(val id: String, val model: String, val summary: DisclosureSummaryDto)
 
 @Serializable
-data class SessionRequest(val installId: String, val integrityToken: String?, val purchaseToken: String? = null)
+data class SessionRequest(
+    val installId: String,
+    val integrityToken: String?,
+    val purchaseToken: String? = null,
+    /** Desktop: proves the install belongs to a sync group that a verified phone registered. */
+    val syncGroupId: String? = null,
+    val syncToken: String? = null,
+)
 
 @Serializable
 data class SessionDto(val token: String, val expiresAt: Long, val premiumUntil: Long? = null)

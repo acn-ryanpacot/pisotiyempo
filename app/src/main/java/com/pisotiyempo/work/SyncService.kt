@@ -20,6 +20,7 @@ import com.pisotiyempo.data.repo.MANILA
 import com.pisotiyempo.data.repo.MarketRepository
 import com.pisotiyempo.data.repo.PortfolioRepository
 import com.pisotiyempo.data.settings.SettingsStore
+import com.pisotiyempo.data.sync.DeviceSync
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -40,10 +41,13 @@ class SyncService(
     private val portfolio: PortfolioRepository,
     private val alerts: AlertRepository,
     private val settings: SettingsStore,
+    private val devices: DeviceSync,
 ) {
     private val mutex = Mutex()
 
     suspend fun run(onProgress: suspend (String) -> Unit = {}): String = mutex.withLock {
+        // Pick up trades and journal entries made on the desktop before scoring holdings.
+        devices.syncNow()
         onProgress("Fetching latest prices")
         market.syncCalendar()
         val snapshot = market.syncSnapshot()

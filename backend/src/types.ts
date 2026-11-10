@@ -14,6 +14,8 @@ export interface Env {
   SESSION_SECRET?: string;
   /** "true" makes per-stock and disclosure AI analysis require an active premium subscription. */
   PREMIUM_AI?: string;
+  /** D1 database for the encrypted sync relay. Optional: without it, sync endpoints return 503. */
+  SYNC_DB?: D1Database;
 }
 
 export type Source = "eodhd" | "pse-edge" | "phisix" | "yahoo" | "manual";

@@ -97,6 +97,36 @@ interface TradeDao {
 
     @Query("DELETE FROM trades WHERE account = :account")
     suspend fun deleteAccount(account: String)
+
+    @Query("SELECT * FROM trades WHERE id = :id")
+    suspend fun get(id: Long): TradeEntity?
+
+    @Query("SELECT * FROM trades WHERE uid = :uid")
+    suspend fun byUid(uid: String): TradeEntity?
+
+    @Query("SELECT * FROM trades WHERE updatedAt >= :since")
+    suspend fun changedSince(since: Long): List<TradeEntity>
+
+    @Upsert
+    suspend fun upsert(trade: TradeEntity)
+
+    @Query("DELETE FROM trades WHERE uid = :uid")
+    suspend fun deleteUid(uid: String)
+}
+
+@Dao
+interface TombstoneDao {
+    @Upsert
+    suspend fun put(tombstones: List<TombstoneEntity>)
+
+    @Query("SELECT * FROM sync_tombstones WHERE uid = :uid")
+    suspend fun get(uid: String): TombstoneEntity?
+
+    @Query("SELECT * FROM sync_tombstones WHERE deletedAt >= :since")
+    suspend fun since(since: Long): List<TombstoneEntity>
+
+    @Query("DELETE FROM sync_tombstones WHERE uid = :uid")
+    suspend fun remove(uid: String)
 }
 
 @Dao
@@ -115,6 +145,21 @@ interface JournalDao {
 
     @Query("SELECT * FROM journal ORDER BY date DESC, id DESC")
     suspend fun all(): List<JournalEntity>
+
+    @Query("SELECT * FROM journal WHERE id = :id")
+    suspend fun get(id: Long): JournalEntity?
+
+    @Query("SELECT * FROM journal WHERE uid = :uid")
+    suspend fun byUid(uid: String): JournalEntity?
+
+    @Query("SELECT * FROM journal WHERE updatedAt >= :since")
+    suspend fun changedSince(since: Long): List<JournalEntity>
+
+    @Upsert
+    suspend fun upsert(entry: JournalEntity)
+
+    @Query("DELETE FROM journal WHERE uid = :uid")
+    suspend fun deleteUid(uid: String)
 }
 
 @Dao
@@ -133,6 +178,12 @@ interface WatchDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM watchlist WHERE symbol = :symbol)")
     fun observeContains(symbol: String): Flow<Boolean>
+
+    @Query("SELECT * FROM watchlist WHERE symbol = :symbol")
+    suspend fun get(symbol: String): WatchEntity?
+
+    @Query("SELECT * FROM watchlist WHERE updatedAt >= :since")
+    suspend fun changedSince(since: Long): List<WatchEntity>
 }
 
 @Dao
@@ -151,6 +202,18 @@ interface AlertDao {
 
     @Query("SELECT * FROM alerts WHERE active = 1")
     suspend fun active(): List<AlertEntity>
+
+    @Query("SELECT * FROM alerts WHERE id = :id")
+    suspend fun get(id: Long): AlertEntity?
+
+    @Query("SELECT * FROM alerts WHERE uid = :uid")
+    suspend fun byUid(uid: String): AlertEntity?
+
+    @Query("SELECT * FROM alerts WHERE updatedAt >= :since")
+    suspend fun changedSince(since: Long): List<AlertEntity>
+
+    @Query("DELETE FROM alerts WHERE uid = :uid")
+    suspend fun deleteUid(uid: String)
 }
 
 @Dao

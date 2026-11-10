@@ -12,6 +12,7 @@ import com.pisotiyempo.data.repo.AnalysisRepository
 import com.pisotiyempo.data.repo.MarketRepository
 import com.pisotiyempo.data.repo.PortfolioRepository
 import com.pisotiyempo.data.settings.SecretStore
+import com.pisotiyempo.data.sync.DeviceSync
 import com.pisotiyempo.data.settings.SettingsStore
 import com.pisotiyempo.work.SyncService
 
@@ -21,12 +22,14 @@ class AppContainer(context: Context) {
     val db: AppDatabase = AppDatabase.create(appContext)
     val settings = SettingsStore(appContext)
     private val sessions = IntegritySession(appContext, db)
-    private val api = PisoApi(sessions = sessions)
+    private val api = PisoApi(BuildConfig.API_BASE_URL, BuildConfig.APP_KEY, sessions = sessions)
     val market = MarketRepository(db, api, PhisixClient(), SecretStore(db))
     val billing = BillingRepository(appContext, db, sessions)
     val analysis = AnalysisRepository(db, market)
     val ai = AiRepository(db, api, settings)
-    val portfolio = PortfolioRepository(db)
-    val alerts = AlertRepository(db)
-    val sync = SyncService(appContext, market, analysis, portfolio, alerts, settings)
+    /** Sync of trades, journal, watchlist and alerts with the desktop app. */
+    val devices = DeviceSync(db, api)
+    val portfolio = PortfolioRepository(db, onChange = devices::changed)
+    val alerts = AlertRepository(db, onChange = devices::changed)
+    val sync = SyncService(appContext, market, analysis, portfolio, alerts, settings, devices)
 }

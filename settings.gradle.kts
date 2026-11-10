@@ -15,4 +15,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "PisoTiyempo"
-include(":app")
+// core: plain-Kotlin engine, backend client and sync, shared by the Android app and the desktop app.
+include(":core", ":app", ":desktop")

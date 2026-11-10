@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sync_title">Sync with your computer</string>
+    <string name="sync_description">Keep trades, the journal, watchlist and alerts in step with the Piso Tiyempo desktop app. Data is encrypted on this phone before it\'s sent; our server can\'t read it.</string>
+    <string name="sync_scan">Scan desktop QR code</string>
+    <string name="sync_scan_prompt">Scan the QR code in the desktop app (Settings › Link phone)</string>
+    <string name="sync_enter_code">Enter link code</string>
+    <string name="sync_create_here">Create a link code on this phone instead</string>
+    <string name="sync_code_label">Link code (starts with PT1.)</string>
+    <string name="sync_link_button">Link</string>
+    <string name="sync_bad_code">That isn\'t a valid link code. It starts with PT1.</string>
+    <string name="sync_linked_message">Linked. Your data is syncing now.</string>
+    <string name="sync_never">Linked, not synced yet.</string>
+    <string name="sync_last">Last synced %1$s</string>
+    <string name="sync_error">Last sync failed: %1$s</string>
+    <string name="sync_now">Sync now</string>
+    <string name="sync_running">Syncing…</string>
+    <string name="sync_show_code">Show link code</string>
+    <string name="sync_unlink">Unlink this phone</string>
+    <string name="sync_delete_server">Delete synced data from server</string>
+    <string name="sync_delete_confirm">This removes the encrypted copy from our server and unlinks this phone. Data on each device stays. Other linked devices stop syncing until you link them again.</string>
+    <string name="sync_delete_button">Delete</string>
+    <string name="sync_code_title">Link code</string>
+    <string name="sync_code_help">In the desktop app, open Settings › Link phone › Enter code, and paste this. Keep a copy somewhere safe: it\'s also how you recover your synced data on a new phone.</string>
+    <string name="sync_code_warning">Anyone with this code can read your synced data. Don\'t share it.</string>
+    <string name="sync_copy">Copy</string>
+    <string name="sync_done">Done</string>
+</resources>

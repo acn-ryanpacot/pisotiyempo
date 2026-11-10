@@ -2,6 +2,9 @@ package com.pisotiyempo.data.repo
 
 import com.pisotiyempo.data.local.AppDatabase
 import com.pisotiyempo.data.local.JournalEntity
+import com.pisotiyempo.data.local.TombstoneEntity
+import com.pisotiyempo.data.sync.watchUid
+import com.pisotiyempo.sync.SyncEnvelope
 import com.pisotiyempo.data.local.TradeEntity
 import com.pisotiyempo.data.local.WatchEntity
 import com.pisotiyempo.domain.portfolio.CashDividend
@@ -14,7 +17,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
-class PortfolioRepository(private val db: AppDatabase) {
+/** [onChange] is called after every write to synced data (trades, journal, watchlist) so it reaches other devices. */
+class PortfolioRepository(private val db: AppDatabase, private val onChange: () -> Unit = {}) {
 
     fun trades(account: String = TradeEntity.ACCOUNT_REAL): Flow<List<TradeEntity>> = db.trades().observe(account)
 
@@ -37,24 +41,43 @@ class PortfolioRepository(private val db: AppDatabase) {
 
     suspend fun allTrades(account: String): List<TradeEntity> = db.trades().all(account)
 
-    suspend fun addTrade(trade: TradeEntity) = db.trades().insert(trade)
+    suspend fun addTrade(trade: TradeEntity): Long = db.trades().insert(trade).also { onChange() }
 
-    suspend fun addTrades(trades: List<TradeEntity>) = db.trades().insertAll(trades)
+    suspend fun addTrades(trades: List<TradeEntity>) {
+        db.trades().insertAll(trades)
+        onChange()
+    }
 
     /** Deletes every practice trade, returning the practice account to its starting cash. */
-    suspend fun resetPractice() = db.trades().deleteAccount(TradeEntity.ACCOUNT_PAPER)
+    suspend fun resetPractice() {
+        val now = System.currentTimeMillis()
+        db.tombstones().put(db.trades().all(TradeEntity.ACCOUNT_PAPER).map { TombstoneEntity(it.uid, SyncEnvelope.TRADE, now) })
+        db.trades().deleteAccount(TradeEntity.ACCOUNT_PAPER)
+        onChange()
+    }
 
-    suspend fun deleteTrade(id: Long) = db.trades().delete(id)
+    suspend fun deleteTrade(id: Long) {
+        db.trades().get(id)?.let { db.tombstones().put(listOf(TombstoneEntity(it.uid, SyncEnvelope.TRADE, System.currentTimeMillis()))) }
+        db.trades().delete(id)
+        onChange()
+    }
 
     fun journal(): Flow<List<JournalEntity>> = db.journal().observeAll()
 
     suspend fun journalNow(): List<JournalEntity> = db.journal().all()
 
-    suspend fun addJournal(entry: JournalEntity) = db.journal().insert(entry)
+    suspend fun addJournal(entry: JournalEntity): Long = db.journal().insert(entry).also { onChange() }
 
-    suspend fun addJournalEntries(entries: List<JournalEntity>) = db.journal().insertAll(entries)
+    suspend fun addJournalEntries(entries: List<JournalEntity>) {
+        db.journal().insertAll(entries)
+        onChange()
+    }
 
-    suspend fun deleteJournal(id: Long) = db.journal().delete(id)
+    suspend fun deleteJournal(id: Long) {
+        db.journal().get(id)?.let { db.tombstones().put(listOf(TombstoneEntity(it.uid, SyncEnvelope.JOURNAL, System.currentTimeMillis()))) }
+        db.journal().delete(id)
+        onChange()
+    }
 
     fun watchlist(): Flow<List<String>> = db.watchlist().observeAll().map { rows -> rows.map { it.symbol } }
 
@@ -63,7 +86,15 @@ class PortfolioRepository(private val db: AppDatabase) {
     suspend fun watchSymbols(): Set<String> = db.watchlist().symbols().toSet()
 
     suspend fun setWatched(symbol: String, watched: Boolean) {
-        if (watched) db.watchlist().add(WatchEntity(symbol, System.currentTimeMillis())) else db.watchlist().remove(symbol)
+        val now = System.currentTimeMillis()
+        if (watched) {
+            db.watchlist().add(WatchEntity(symbol, now, now))
+            db.tombstones().remove(watchUid(symbol))
+        } else {
+            db.tombstones().put(listOf(TombstoneEntity(watchUid(symbol), SyncEnvelope.WATCH, now)))
+            db.watchlist().remove(symbol)
+        }
+        onChange()
     }
 }
 

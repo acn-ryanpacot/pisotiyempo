@@ -23,6 +23,11 @@ sqlcipher = "4.6.1"
 sqlite = "2.4.0"
 biometric = "1.1.0"
 fragment = "1.8.5"
+composeMultiplatform = "1.7.1"
+sqliteJdbc = "3.47.1.0"
+zxing = "3.5.3"
+zxingAndroid = "4.3.0"
+jna = "5.15.0"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -45,6 +50,12 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "coroutines" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+zxing-android = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroid" }
+jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines" }
 play-integrity = { module = "com.google.android.play:integrity", version.ref = "playIntegrity" }
 billing = { module = "com.android.billingclient:billing-ktx", version.ref = "billing" }
@@ -63,5 +74,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsPlugin" }

@@ -85,6 +85,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             item { PremiumCard() }
             item { DataCard(s, context) }
             item { EodhdKeyCard() }
+            item { SyncCard() }
             item { BackupCard() }
             item { PracticeCashCard(s) }
             item { LanguageCard(s) }

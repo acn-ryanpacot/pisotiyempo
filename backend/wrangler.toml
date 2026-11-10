@@ -12,6 +12,14 @@ id = "REPLACE_WITH_KV_NAMESPACE_ID"
 # Times are UTC. PSE closes at 3:00 PM PHT (07:00 UTC).
 # 09:00 UTC = 5:00 PM PHT: snapshot the day's prices and write the AI market brief.
 # 11:00 UTC = 7:00 PM PHT: retry in case EODHD had not published the day yet.
+# Encrypted sync relay. Create with: npx wrangler d1 create piso-sync
+# then paste the database_id below and run: npx wrangler d1 migrations apply piso-sync --remote
+[[d1_databases]]
+binding = "SYNC_DB"
+database_name = "piso-sync"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
 [triggers]
 crons = ["0 9 * * 1-5", "0 11 * * 1-5"]
 

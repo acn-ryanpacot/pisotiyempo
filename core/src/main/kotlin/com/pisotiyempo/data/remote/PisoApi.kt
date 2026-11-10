@@ -1,6 +1,10 @@
 package com.pisotiyempo.data.remote
 
-import com.pisotiyempo.BuildConfig
+import com.pisotiyempo.sync.LinkCode
+import com.pisotiyempo.sync.SyncPullResponse
+import com.pisotiyempo.sync.SyncPushRequest
+import com.pisotiyempo.sync.SyncPushResponse
+import com.pisotiyempo.sync.SyncTransport
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
@@ -27,13 +31,18 @@ interface SessionProvider {
     suspend fun invalidate()
 }
 
-/** Client for the Piso Tiyempo backend (see backend/). */
+/**
+ * Client for the Piso Tiyempo backend (see backend/). Shared by the Android and desktop apps; each passes in
+ * its own server address and app key.
+ */
 class PisoApi(
-    private val baseUrl: String = BuildConfig.API_BASE_URL.trimEnd('/'),
-    private val appKey: String = BuildConfig.APP_KEY,
+    baseUrl: String,
+    private val appKey: String,
     private val http: OkHttpClient = defaultClient(),
     private val sessions: SessionProvider? = null,
 ) {
+    private val baseUrl = baseUrl.trimEnd('/')
+
     suspend fun status(): StatusDto = get("/v1/status")
     suspend fun calendar(from: String): CalendarDto = get("/v1/calendar?from=$from")
     suspend fun latest(): SourcedDto<SnapshotDto> = get("/v1/eod/latest")
@@ -49,6 +58,21 @@ class PisoApi(
         post("/v1/ai/journal-review", ApiJson.encodeToString(JournalReviewRequest.serializer(), request))
     suspend fun summarizeDisclosure(request: DisclosureRequest): DisclosureSummaryResponse =
         post("/v1/ai/disclosure", ApiJson.encodeToString(DisclosureRequest.serializer(), request))
+
+    // ---- Encrypted sync (see com.pisotiyempo.sync). The server stores only ciphertext. ----
+
+    suspend fun syncPush(groupId: String, token: String, request: SyncPushRequest): SyncPushResponse =
+        call(
+            Request.Builder().url("$baseUrl/v1/sync/push").header("X-Sync-Group", groupId).header("X-Sync-Token", token)
+                .post(ApiJson.encodeToString(SyncPushRequest.serializer(), request).toRequestBody(JSON_TYPE)),
+        )
+
+    suspend fun syncPull(groupId: String, token: String, since: Long): SyncPullResponse =
+        call(Request.Builder().url("$baseUrl/v1/sync/pull?since=$since").header("X-Sync-Group", groupId).header("X-Sync-Token", token).get())
+
+    /** Deletes the group's encrypted data from the server ("unlink all devices"). */
+    suspend fun syncDelete(groupId: String, token: String): Unit =
+        call<SyncDeleteResponse>(Request.Builder().url("$baseUrl/v1/sync/group").header("X-Sync-Group", groupId).header("X-Sync-Token", token).delete()).let { }
 
     /** Exchanges a Play Integrity token for a session token. Sent without a session, since it creates one. */
     suspend fun createSession(request: SessionRequest): SessionDto =
@@ -105,4 +129,15 @@ class PhisixClient(private val http: OkHttpClient = PisoApi.defaultClient()) {
             ApiJson.decodeFromString<PhisixResponse>(res.body?.string().orEmpty())
         }
     }
+}
+
+@kotlinx.serialization.Serializable
+data class SyncDeleteResponse(val ok: Boolean)
+
+/** [SyncTransport] over the Piso Tiyempo backend. */
+class PisoSyncTransport(private val api: PisoApi) : SyncTransport {
+    override suspend fun push(link: LinkCode, records: List<com.pisotiyempo.sync.SyncBlob>): SyncPushResponse =
+        api.syncPush(link.groupId, link.authToken, SyncPushRequest(records))
+
+    override suspend fun pull(link: LinkCode, since: Long): SyncPullResponse = api.syncPull(link.groupId, link.authToken, since)
 }

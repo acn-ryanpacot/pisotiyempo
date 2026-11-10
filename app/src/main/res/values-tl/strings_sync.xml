@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sync_title">I-sync sa iyong computer</string>
+    <string name="sync_description">Panatilihing pareho ang trades, journal, watchlist at alerts sa desktop app ng Piso Tiyempo. Naka-encrypt ang datos sa phone na ito bago ipadala; hindi ito mababasa ng aming server.</string>
+    <string name="sync_scan">I-scan ang QR code sa desktop</string>
+    <string name="sync_scan_prompt">I-scan ang QR code sa desktop app (Settings › Link phone)</string>
+    <string name="sync_enter_code">Ilagay ang link code</string>
+    <string name="sync_create_here">Gumawa na lang ng link code sa phone na ito</string>
+    <string name="sync_code_label">Link code (nagsisimula sa PT1.)</string>
+    <string name="sync_link_button">I-link</string>
+    <string name="sync_bad_code">Hindi tamang link code iyan. Nagsisimula ito sa PT1.</string>
+    <string name="sync_linked_message">Naka-link na. Nagsi-sync na ang iyong datos.</string>
+    <string name="sync_never">Naka-link, hindi pa nakapag-sync.</string>
+    <string name="sync_last">Huling sync: %1$s</string>
+    <string name="sync_error">Hindi natuloy ang huling sync: %1$s</string>
+    <string name="sync_now">I-sync ngayon</string>
+    <string name="sync_running">Nagsi-sync…</string>
+    <string name="sync_show_code">Ipakita ang link code</string>
+    <string name="sync_unlink">I-unlink ang phone na ito</string>
+    <string name="sync_delete_server">Burahin ang na-sync na datos sa server</string>
+    <string name="sync_delete_confirm">Buburahin nito ang naka-encrypt na kopya sa aming server at ia-unlink ang phone na ito. Mananatili ang datos sa bawat device. Hihinto ang pag-sync ng ibang naka-link na device hanggang i-link mo ulit.</string>
+    <string name="sync_delete_button">Burahin</string>
+    <string name="sync_code_title">Link code</string>
+    <string name="sync_code_help">Sa desktop app, buksan ang Settings › Link phone › Enter code, at i-paste ito. Magtabi ng kopya sa ligtas na lugar: ito rin ang paraan para makuha ulit ang na-sync mong datos sa bagong phone.</string>
+    <string name="sync_code_warning">Mababasa ng sinumang may code na ito ang na-sync mong datos. Huwag itong ibahagi.</string>
+    <string name="sync_copy">Kopyahin</string>
+    <string name="sync_done">Tapos</string>
+</resources>

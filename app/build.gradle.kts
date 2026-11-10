@@ -61,6 +61,7 @@ ksp {
 }
 
 dependencies {
+    implementation(project(":core"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.compose.bom))
@@ -88,6 +89,7 @@ dependencies {
     implementation(libs.androidx.sqlite)
     implementation(libs.biometric)
     implementation(libs.androidx.fragment)
+    implementation(libs.zxing.android)
 
     debugImplementation(libs.compose.ui.tooling)
 

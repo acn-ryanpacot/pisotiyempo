@@ -4,6 +4,7 @@ import { parseJournalInput } from "./ai/journal";
 import { parseFeatures, ValidationError, type MarketBrief } from "./ai/schemas";
 import { CLOSURES_KEY, type Closures } from "./calendar";
 import { fetchSubscription, premiumUntil } from "./billing";
+import { authenticate, D1SyncDb, pull as syncPull, push as syncPush, readAuth, SyncError, type Caller } from "./sync";
 import { decodeIntegrityToken, evaluateVerdict, integrityMode, issueSession, sessionRequestHash, verifySession, type Session } from "./integrity";
 import { Market } from "./market";
 import { computeMarketStats } from "./stats";
@@ -81,6 +82,26 @@ async function handle(request: Request, env: Env, ctx: ExecutionContext): Promis
   if (path === "/v1/auth/session" && request.method === "POST") return createSession(request, env, mode);
   const bearer = request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
   const session: Session | null = env.SESSION_SECRET && bearer ? await verifySession(bearer, env.SESSION_SECRET) : null;
+
+  // Sync authenticates with the group's token, not the integrity session, so desktops can use it.
+  if (path.startsWith("/v1/sync/")) {
+    if (!env.SYNC_DB) return error(503, "sync_unconfigured", "The SYNC_DB D1 binding is not set up.");
+    const db = new D1SyncDb(env.SYNC_DB);
+    const auth = readAuth(request.headers);
+    const caller: Caller = { hasSession: session != null, premiumUntil: session?.premiumUntil ?? null, enforce: mode === "enforce" };
+    if (path === "/v1/sync/push" && request.method === "POST") return json(await syncPush(db, auth, await request.json(), caller));
+    if (path === "/v1/sync/pull" && request.method === "GET") {
+      const since = Number(url.searchParams.get("since") ?? "0");
+      return json(await syncPull(db, auth, Number.isFinite(since) && since > 0 ? Math.floor(since) : 0, caller));
+    }
+    if (path === "/v1/sync/group" && request.method === "DELETE") {
+      if (!(await authenticate(db, auth))) return error(404, "not_found", "Sync group not found");
+      await db.deleteGroup(auth.groupId);
+      return json({ ok: true });
+    }
+    return error(404, "not_found", "Unknown sync endpoint");
+  }
+
   // /v1/status stays open so the app's Settings screen can diagnose a broken setup.
   if (mode !== "off" && path !== "/v1/status" && !session) {
     if (mode === "enforce") return error(401, "integrity_required", "Request a session with Play Integrity first.");
@@ -214,9 +235,23 @@ async function briefFor(market: Market, apiKey: string, date: string, lang: Lang
  */
 async function createSession(request: Request, env: Env, mode: ReturnType<typeof integrityMode>): Promise<Response> {
   if (!env.SESSION_SECRET) return error(503, "integrity_unconfigured", "SESSION_SECRET is not set.");
-  const body = (await request.json()) as { installId?: unknown; integrityToken?: unknown; purchaseToken?: unknown };
+  const body = (await request.json()) as {
+    installId?: unknown; integrityToken?: unknown; purchaseToken?: unknown; syncGroupId?: unknown; syncToken?: unknown;
+  };
   const installId = typeof body.installId === "string" && /^[0-9a-f-]{16,64}$/.test(body.installId) ? body.installId : null;
   if (!installId) return error(400, "invalid", "installId is required");
+
+  // Desktop: no Play Integrity, so it proves membership of a sync group that a verified phone registered,
+  // and inherits that group's premium status.
+  if (typeof body.syncGroupId === "string" && typeof body.syncToken === "string") {
+    if (!env.SYNC_DB) return error(503, "sync_unconfigured", "The SYNC_DB D1 binding is not set up.");
+    const headers = new Headers({ "X-Sync-Group": body.syncGroupId, "X-Sync-Token": body.syncToken });
+    const group = await authenticate(new D1SyncDb(env.SYNC_DB), readAuth(headers));
+    if (!group) return error(404, "group_not_registered", "Link this device from the phone app first.");
+    if (mode !== "off" && !group.verified) return error(403, "group_not_verified", "Open the phone app once so it can verify the sync group.");
+    const until = group.premiumUntil && group.premiumUntil > Date.now() ? group.premiumUntil : undefined;
+    return json(await issueSession(installId, env.SESSION_SECRET, Date.now(), until));
+  }
 
   if (mode !== "off") {
     if (typeof body.integrityToken !== "string" || !body.integrityToken) return error(400, "invalid", "integrityToken is required");
@@ -271,6 +306,7 @@ export default {
       return await handle(request, env, ctx);
     } catch (err) {
       if (err instanceof ValidationError) return error(400, "invalid", err.message);
+      if (err instanceof SyncError) return error(err.status, err.code, err.message);
       if (err instanceof AllSourcesFailedError) return error(502, "upstream_unavailable", err.message);
       if (err instanceof AiUnavailableError) return error(503, "ai_unavailable", err.message);
       if (err instanceof Anthropic.RateLimitError) return error(503, "ai_unavailable", "AI is rate limited; try later.");

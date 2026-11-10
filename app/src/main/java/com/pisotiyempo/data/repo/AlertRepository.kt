@@ -4,6 +4,8 @@ import com.pisotiyempo.data.local.AlertEntity
 import com.pisotiyempo.data.local.AnalysisEntity
 import com.pisotiyempo.data.local.AppDatabase
 import com.pisotiyempo.data.local.StockEntity
+import com.pisotiyempo.data.local.TombstoneEntity
+import com.pisotiyempo.sync.SyncEnvelope
 import kotlinx.coroutines.flow.Flow
 
 enum class AlertKind(val label: String, val needsThreshold: Boolean) {
@@ -16,15 +18,20 @@ enum class AlertKind(val label: String, val needsThreshold: Boolean) {
 
 data class TriggeredAlert(val alert: AlertEntity, val title: String, val message: String)
 
-class AlertRepository(private val db: AppDatabase) {
+class AlertRepository(private val db: AppDatabase, private val onChange: () -> Unit = {}) {
 
     fun alerts(): Flow<List<AlertEntity>> = db.alerts().observeAll()
 
     suspend fun add(symbol: String, kind: AlertKind, threshold: Double?) {
         db.alerts().insert(AlertEntity(symbol = symbol, kind = kind.name, threshold = threshold, createdAt = System.currentTimeMillis()))
+        onChange()
     }
 
-    suspend fun delete(id: Long) = db.alerts().delete(id)
+    suspend fun delete(id: Long) {
+        db.alerts().get(id)?.let { db.tombstones().put(listOf(TombstoneEntity(it.uid, SyncEnvelope.ALERT, System.currentTimeMillis()))) }
+        db.alerts().delete(id)
+        onChange()
+    }
 
     /** Checks active alerts against the latest data. Each alert fires at most once per trading day. */
     suspend fun evaluate(): List<TriggeredAlert> {

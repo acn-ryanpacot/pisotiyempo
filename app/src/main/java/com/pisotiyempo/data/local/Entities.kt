@@ -63,7 +63,7 @@ data class AnalysisEntity(
     val return3mPct: Double?,
 )
 
-@Entity(tableName = "trades", indices = [Index("symbol")])
+@Entity(tableName = "trades", indices = [Index("symbol"), Index(value = ["uid"], unique = true)])
 data class TradeEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val symbol: String,
@@ -75,6 +75,10 @@ data class TradeEntity(
     val note: String = "",
     /** [ACCOUNT_REAL] or [ACCOUNT_PAPER] (practice trading with virtual money). */
     val account: String = ACCOUNT_REAL,
+    /** Stable id across devices for sync (schema v3). */
+    val uid: String = newUid(),
+    /** Last local change, for sync's last-write-wins. */
+    val updatedAt: Long = System.currentTimeMillis(),
 ) {
     companion object {
         const val ACCOUNT_REAL = "REAL"
@@ -83,7 +87,7 @@ data class TradeEntity(
 }
 
 /** A trading-journal note: why a trade was taken, how it felt and what was learned. */
-@Entity(tableName = "journal", indices = [Index("symbol")])
+@Entity(tableName = "journal", indices = [Index("symbol"), Index(value = ["uid"], unique = true)])
 data class JournalEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val symbol: String,
@@ -98,15 +102,18 @@ data class JournalEntity(
     /** 1-5, how well the plan was followed. */
     val rating: Int? = null,
     val createdAt: Long,
+    val uid: String = newUid(),
+    val updatedAt: Long = System.currentTimeMillis(),
 )
 
 @Entity(tableName = "watchlist")
 data class WatchEntity(
     @PrimaryKey val symbol: String,
     val addedAt: Long,
+    val updatedAt: Long = System.currentTimeMillis(),
 )
 
-@Entity(tableName = "alerts", indices = [Index("symbol")])
+@Entity(tableName = "alerts", indices = [Index("symbol"), Index(value = ["uid"], unique = true)])
 data class AlertEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val symbol: String,
@@ -114,9 +121,21 @@ data class AlertEntity(
     val threshold: Double?,
     val active: Boolean = true,
     val createdAt: Long,
-    /** Trading date this alert last fired, so it fires at most once per day. */
+    /** Trading date this alert last fired, so it fires at most once per day. Local only, not synced. */
     val lastTriggered: String? = null,
+    val uid: String = newUid(),
+    val updatedAt: Long = System.currentTimeMillis(),
 )
+
+/** Remembers deletions so sync can tell other devices, and so an older copy from the server isn't revived. */
+@Entity(tableName = "sync_tombstones")
+data class TombstoneEntity(
+    @PrimaryKey val uid: String,
+    val type: String,
+    val deletedAt: Long,
+)
+
+fun newUid(): String = java.util.UUID.randomUUID().toString().replace("-", "")
 
 @Entity(tableName = "dividends", primaryKeys = ["symbol", "exDate", "type", "rateText"])
 data class DividendEntity(
